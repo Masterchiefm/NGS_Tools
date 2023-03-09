@@ -112,9 +112,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         if path == "":
             return
         self.exportSheet(tem_save=True)
-        ref = pd.read_excel("tmp.xlsx",index_col=0)
+        ref = pd.read_excel(".tmp.xlsx",index_col=0)
         newRef = pd.DataFrame(columns=ref.columns)
-        newRef.to_excel('tmp2.xlsx')
+        newRef.to_excel('.tmp2.xlsx')
         for i in ref.index:
             try:
                 sample = ref.loc[i, "样品名"]
@@ -207,13 +207,13 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
         bashData.append("\n wait \n date >> timeCounter\n")
         a = "".join(bashData)
-        with open("run.sh", "w") as f:
+        with open(".run.sh", "w") as f:
             f.write(a)
 
 
         # 正式开始分析
         time0 = str(time.ctime())
-        info = os.system("bash ./run.sh")
+        info = os.system("bash ./.run.sh")
 
 
         # 汇总结果
@@ -410,7 +410,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.label.setText(lyric)
 
         if tem_save == True:
-            file_path =  "tmp.xlsx"
+            file_path =  ".tmp.xlsx"
         else:
             file_path, type = QFileDialog.getSaveFileName(self, "存", "", "excel(*.xlsx)")
             if ".xlsx" in file_path[-5:]:

@@ -175,14 +175,14 @@ Chemistry,DNA,,,,,,
         cmd = bcl2fq + " -R " + self.plainTextEdit_readIllumina.toPlainText().strip()  + " -o " + self.lineEdit_FqDir.text() + \
               " " +self.lineEdit_parameter.text() + " " + \
               " --sample-sheet " + self.plainTextEdit_readIllumina.toPlainText().strip() +"/SampleSheet.csv  "
-        with open("run.sh","w") as f:
+        with open(".run.sh","w") as f:
             content = """#!/bin/bash
             source ~/miniconda3/bin/activate base
             echo 开始分析\n
             """ + cmd
             f.write(content)
 
-        info = subprocess.Popen(["bash ./run.sh"],shell=True,stderr=subprocess.PIPE)
+        info = subprocess.Popen(["bash ./.run.sh"],shell=True,stderr=subprocess.PIPE)
         info = str(info.stderr.read())
         # print(info)
         try:

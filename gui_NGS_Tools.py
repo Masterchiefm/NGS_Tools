@@ -14,11 +14,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(1010, 766)
+        MainWindow.resize(591, 401)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.plainTextEdit.setObjectName("plainTextEdit")
+        self.verticalLayout_2.addWidget(self.plainTextEdit)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox.setObjectName("groupBox")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox)
@@ -38,7 +41,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.groupBox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1010, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 23))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -50,7 +53,23 @@ class Ui_MainWindow(object):
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
-        MainWindow.setWindowTitle(_translate("MainWindow", "MainWindow"))
+        MainWindow.setWindowTitle(_translate("MainWindow", "NGS_Tools"))
+        self.plainTextEdit.setPlainText(_translate("MainWindow", "NGS工具箱：\n"
+"\n"
+"本工具箱提供了图形界面并缝合了一系列软件以实现以下功能：\n"
+"1. 将illumina下机数据转换成fastq数据。\n"
+"2. 使用CRISPResso2的部分功能进行基因编辑效果分析\n"
+"3. 汇总结果\n"
+"\n"
+"程序源码公开于 https://github.com/Masterchiefm/NGS_Tools\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"\n"
+"本程序由莫淇钦创建于上海科技大学马涵慧实验室\n"
+"联系邮箱：moqiqin@live.com\n"
+""))
         self.groupBox.setTitle(_translate("MainWindow", "请选择功能"))
         self.pushButton_bcl.setText(_translate("MainWindow", "BCL2Fastq"))
         self.pushButton_HDR.setText(_translate("MainWindow", "HDR or PE"))

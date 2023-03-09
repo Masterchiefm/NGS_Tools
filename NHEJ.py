@@ -1,11 +1,11 @@
 import os
-import zipfile
+import re
 import time
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDialog, QMessageBox
 import pandas as pd
-from gui_PE import Ui_CRISPResso
+from gui_NHEJ import Ui_CRISPResso
 import subprocess
 import requests
 
@@ -103,6 +103,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
 
+
     # 功能区
     def start(self):
         self.setSavePath()
@@ -112,8 +113,11 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             return
         self.exportSheet(tem_save=True)
         ref = pd.read_excel(".tmp.xlsx",index_col=0)
+
+
         lyric = getLyric()
         self.label.setText(lyric)
+        parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
 
         # 生成批处理文件
         bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
@@ -127,51 +131,41 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         log = ''
         cmdList = []
         fileList = os.listdir(path)
-        CRISPResso = "CRISPResso"
-        parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
-        # print(parameter)
-        # seqPair_sheet = pd.DataFrame(columns=["样品名","描述","测序文件1","测序文件2"])
-
+        seq_pairs = {}
         for i in ref.index:
-            sample = str(ref.loc[i]["样品名"])
-            sg1 = ref.loc[i]["sg1"]
-            sg2 = ref.loc[i]["sg2"]
+            sample = str(ref.loc[i]["样品名"]).strip()
+            # output_name = sample
+            sg = ref.loc[i]["sg"]
+            # sg2 = ref.loc[i]["sgRNA2"]
             seqPair = []
 
             # 测序文件一一匹配
             for f in fileList:
-                if sample + "_" in f:
+                seq_name = f.split("_")[0]
+                if seq_name == sample:
                     seqPair.append(path + "/" + f)
+
+            seq_pairs[sample] = (seqPair)
+
             if seqPair:
-                try:
-                    r1 = seqPair[0]
-                    ref.loc[i,"测序文件2"] = r1
-                except Exception as e:
-                    ref.loc[i, "测序文件2"] = "无文件"
-                try:
-                    r2 = seqPair[1]
-                    ref.loc[i, "测序文件1"] = r2
-                except Exception as e:
-                    ref.loc[i, "测序文件1"] = "无文件"
+                r1 = seqPair[0]
+                r2 = seqPair[1]
+                ref.loc[i,"测序文件1"] = r1
+                ref.loc[i,"测序文件2"] = r2
+
+                if len(seqPair) != 2:
+                    print(sample)
+                    print(seqPair)
             else:
                 print(sample + " not found")
                 log = log + (sample + " not found")
                 continue
 
-            # sg序列读取
-            if (str(sg2) != "nan") and ("nan" != str(sg1)):
-                sg = sg1 + "," + sg2
-                # print(sg)
-            else:
-                sg = str(sg1) + str(sg2)
-                sg = sg.replace("nan", "")
-                # print(sg)
-
             # 比对的目标序列
             amplicon = ref.loc[i]["原始序列"]
-            hdrRef = ref.loc[i]["修改后序列"]
-            cmd = CRISPResso + (" -r1 %s -r2 %s  -a %s -g %s  -e %s " % (
-            r1, r2, amplicon, sg, hdrRef)) + "  " + parameter + " -o %s/%s" % (output_path , sample)
+
+
+            cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s "%(r1,r2,amplicon,sg)) + parameter + " -o %s/%s"%(output_path,sample)
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 
@@ -188,32 +182,29 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             f.write(a)
 
 
+        # 正式开始分析
         time0 = str(time.ctime())
         info = os.system("bash ./.run.sh")
 
 
-
-        # 数据汇总
+        # 汇总结果
         summaryFiles = ''
         sampleIndex = {}
         errorResults = []
-        result = pd.DataFrame(columns=["描述", "正确编辑占总体的比例",
-                                       "正确编辑占总编辑的比例",
-                                       "Indel占总体比例",
-
-                                       "NHEJ占总体体比例",
+        result = pd.DataFrame(columns=["描述", "NHEJ占总体的比例",
                                        "总读数",
                                        "实际使用读数",
                                        ])
+
         n = 0
         for i in ref.index:
-            name = str(ref.loc[i, "样品名"].strip())
+            name = ref.loc[i, "样品名"].strip()
             result.loc[name, "描述"] = ref.loc[i, "描述"]
-            resultDir = output_path + "/"+ name
+            resultDir = output_path +"/" + name
             try:
                 os.listdir(resultDir)
             except:
-                result.loc[name, "正确编辑占总体的比例"] = "无测序文件"
+                result.loc[name, "NHEJ占总体的比例"] = "无测序文件"
                 continue
 
             for f in os.listdir(resultDir):
@@ -224,7 +215,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 else:
                     folder = f
                     logFile = resultDir + "/" + folder + "/CRISPResso_RUNNING_LOG.txt"
-                    allelesFrequencyTable = resultDir + "/" + folder + "/Alleles_frequency_table.zip"
+                    # allelesFrequencyTable = resultDir + "/" + folder + "/Alleles_frequency_table.zip"
                     resultFile = resultDir + "/" + folder + "/CRISPResso_quantification_of_editing_frequency.txt"
 
             # 判断有没有对这个样品进行分析
@@ -233,7 +224,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 pass
             else:
                 # 分析日志不存在
-                result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
+                result.loc[name, "NHEJ占总体的比例"] = "No enough reads"
                 print(name + "error, 未进行CRISPResso分析")
                 continue  # 跳过循环，下一个样品
 
@@ -242,44 +233,16 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 o = log.read()
                 if "ERROR" in o:  # 分析过程中出错，一般为reads数为0才出错。其次是分析窗口超出范围。
                     errorResults.append(name)
-                    result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
+                    result.loc[name, "NHEJ占总体的比例"] = "No enough reads"
                     for line in o.splitlines():
                         if "ERROR" in line:
                             print(name + line)
                     continue
                 else:
-                    # 1. 解压、读取分析结果文件
-                    allelesFrequencyTableZip = zipfile.ZipFile(allelesFrequencyTable)
-                    allelesData = allelesFrequencyTableZip.read('Alleles_frequency_table.txt')
-                    allelesFrequencyTableZip.extractall(resultDir + "/" + folder + "/")
-
-                    # 2. 逐条进行判断是否为ambiguous Indel
-                    ambiguousIndel = 0
-                    allelesFrequencyTable = pd.read_csv(resultDir + "/" + folder + "/Alleles_frequency_table.txt",
-                                                        sep='\t')
-                    for i in allelesFrequencyTable.index:
-                        if allelesFrequencyTable.loc[i, "Reference_Name"] == "AMBIGUOUS_Reference":
-                            if allelesFrequencyTable.loc[i, "n_deleted"] + allelesFrequencyTable.loc[
-                                i, "n_deleted"] > 0:
-                                reads = allelesFrequencyTable.loc[i, "#Reads"]
-                                ambiguousIndel = ambiguousIndel + reads
-
-                    # 3. 读取非ambiguous 序列的indel数据
                     resultFrame = pd.read_csv(resultFile, sep='\t')
-                    # print(ambiguousIndel)
-                    HDR_unmodified = resultFrame.loc[1, 'Unmodified']
-                    allHDR = resultFrame.loc[1, 'Reads_aligned']
-                    HDR_modified = resultFrame.loc[1, 'Modified']
-                    reads_aligned = resultFrame.loc[1, 'Reads_aligned_all_amplicons']
-                    reads = resultFrame.loc[1, 'Reads_in_input']
+                    reads_aligned = resultFrame.loc[0, 'Reads_aligned_all_amplicons']
+                    reads = resultFrame.loc[0, 'Reads_in_input']
                     NHEJreads = resultFrame.loc[0, "Modified"]
-                    insertion = int(resultFrame.loc[0, "Insertions"]) + int(resultFrame.loc[1, "Insertions"])
-                    deletion = int(resultFrame.loc[0, "Deletions"]) + int(resultFrame.loc[1, "Deletions"])
-                    insertionAndDeletion = int(resultFrame.loc[0, "Insertions and Deletions"]) + int(
-                        resultFrame.loc[1, "Insertions and Deletions"])
-
-                    substitution = int(resultFrame.loc[0, "Substitutions"]) + int(resultFrame.loc[1, "Substitutions"])
-                    HDR_insertion = resultFrame.loc[0, "Insertions"]
 
                     # 4. 测序深度过滤
                     if reads_aligned < 1500:
@@ -292,47 +255,15 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                     result.loc[name, "实际使用读数"] = reads_aligned
 
                     try:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (float(0))
-
-                    try:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(allHDR) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (float(0) * 100)
-
-                    try:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (
+                        result.loc[name, "NHEJ占总体的比例"] = "%.2f%%" % (
                                     float(NHEJreads) / float(reads_aligned) * 100)
                     except:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (float(0) * 100)
+                        result.loc[name, "NHEJ占总体的比例"] = "%.2f%%" % (float(0) * 100)
 
-                    # try:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion)) / float(reads_aligned)*100)
-                    # except:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
-
-                    try:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion) + float(
-                            ambiguousIndel) - insertionAndDeletion) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % (float(0) * 100)
-
-        time1 = str(time.ctime())
-        result.loc[
-            "备注", "正确编辑占总体的比例"] = "有发生insertion 或者 deletetion的，或者两者同时发生的算为一个indel。统计来源：与原始amplicon类似的reads（NHEJ），与预期序列类似的（imperfect HDR），与原始、预期都相似但无法判断的reads（AMBIGUOUS）"
-        result.loc[
-            "Method", "正确编辑占总体的比例"] = "Modified genome was amplified and sequenced using illumina MiniSeq®. Each amlicon-seq data was analysed wiht CRISPResso2 and summarized by a home-made script. The indel is regard as the reads with insertion or deletion, but subsitution. Data analysis was performed by Qiqin Mo, and the code is avalibele at https://github.com/Hanhui-Ma-Lab/Script_for_Amplicon-seq "
         result.to_excel(output_path + "/结果汇总.xlsx")
         ref.to_excel(output_path + "/原始信息表格.xlsx")
-        QMessageBox.about(self,"Done","已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
-
-
-
-
-
+        time1 = str(time.ctime())
+        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
 
     def chooseFolder(self):
         path = QFileDialog.getExistingDirectory(self,"选择下机数据文件夹")

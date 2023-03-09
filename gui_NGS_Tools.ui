@@ -6,15 +6,37 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1010</width>
-    <height>766</height>
+    <width>591</width>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>MainWindow</string>
+   <string>NGS_Tools</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <widget class="QPlainTextEdit" name="plainTextEdit">
+      <property name="plainText">
+       <string>NGS工具箱：
+
+本工具箱提供了图形界面并缝合了一系列软件以实现以下功能：
+1. 将illumina下机数据转换成fastq数据。
+2. 使用CRISPResso2的部分功能进行基因编辑效果分析
+3. 汇总结果
+
+程序源码公开于 https://github.com/Masterchiefm/NGS_Tools
+
+
+
+
+
+本程序由莫淇钦创建于上海科技大学马涵慧实验室
+联系邮箱：moqiqin@live.com
+</string>
+      </property>
+     </widget>
+    </item>
     <item>
      <widget class="QGroupBox" name="groupBox">
       <property name="title">
@@ -59,7 +81,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1010</width>
+     <width>591</width>
      <height>23</height>
     </rect>
    </property>
