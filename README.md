@@ -5,7 +5,8 @@
 ## 功能
 1. 提供图形化的bcl2fastq界面，可以拆分下机数据（demultiplex）。
 详细说明请查阅[illumina说明](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)
-2. 提供CRISPResso2的图形操作界面，可以批量分析HDR，PE，BE，NHEJ.
+2. 提供[CRISPResso2](https://github.com/pinellolab/CRISPResso2)
+的图形操作界面，可以批量分析HDR，PE，BE，NHEJ.
 3. 收集编辑数据，并汇总到excel表。
 4. 一键安装分析环境
 
