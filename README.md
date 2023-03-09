@@ -30,7 +30,7 @@ CPU建议8核心以上
 
 下载链接：
 
-[Gitee Release]()
+[Gitee Release](https://gitee.com/MasterChiefm/NGS_Tools/releases/latest)
 
 或者
 
