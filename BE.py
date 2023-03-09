@@ -1,11 +1,11 @@
 import os
-import zipfile
+import re
 import time
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDialog, QMessageBox
 import pandas as pd
-from gui_PE import Ui_CRISPResso
+from gui_BE import Ui_CRISPResso
 import subprocess
 import requests
 
@@ -113,8 +113,27 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             return
         self.exportSheet(tem_save=True)
         ref = pd.read_excel("tmp.xlsx",index_col=0)
+        newRef = pd.DataFrame(columns=ref.columns)
+        newRef.to_excel('tmp2.xlsx')
+        for i in ref.index:
+            try:
+                sample = ref.loc[i, "样品名"]
+                base_from =  ref.loc[i, "原始碱基"].upper()
+                base_to = ref.loc[i, "修改后碱基"].upper()
+                edit_site = str(ref.loc[i, "最想看的位置"])
+                if str(edit_site) == "nan":
+                    edit_site = 0
+                output_name = sample + "_" + edit_site + "-"  + base_from + "-" + base_to
+
+                newRef.loc[output_name] = ref.loc[i]
+            except:
+                continue
+
+
+
         lyric = getLyric()
         self.label.setText(lyric)
+        parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
 
         # 生成批处理文件
         bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
@@ -128,51 +147,54 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         log = ''
         cmdList = []
         fileList = os.listdir(path)
-        CRISPResso = "CRISPResso"
-        parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
-        # print(parameter)
-        # seqPair_sheet = pd.DataFrame(columns=["样品名","描述","测序文件1","测序文件2"])
-
-        for i in ref.index:
-            sample = ref.loc[i]["样品名"]
-            sg1 = ref.loc[i]["sg1"]
-            sg2 = ref.loc[i]["sg2"]
+        seq_pairs = {}
+        for i in newRef.index:
+            sample = str(newRef.loc[i]["样品名"]).strip()
+            output_name = str(i).strip()
+            sg = newRef.loc[i]["sg"]
+            # sg2 = ref.loc[i]["sgRNA2"]
             seqPair = []
 
             # 测序文件一一匹配
             for f in fileList:
-                if sample + "_" in f:
+                seq_name = f.split("_")[0]
+                if seq_name == sample:
                     seqPair.append(path + "/" + f)
+
+            seq_pairs[sample] = (seqPair)
+
             if seqPair:
-                try:
-                    r1 = seqPair[0]
-                    ref.loc[i,"测序文件2"] = r1
-                except Exception as e:
-                    ref.loc[i, "测序文件2"] = "无文件"
-                try:
-                    r2 = seqPair[1]
-                    ref.loc[i, "测序文件1"] = r2
-                except Exception as e:
-                    ref.loc[i, "测序文件1"] = "无文件"
+                r1 = seqPair[0]
+                r2 = seqPair[1]
+                newRef.loc[i,"测序文件1"] = r1
+                newRef.loc[i,"测序文件2"] = r2
+
+                if len(seqPair) != 2:
+                    print(sample)
+                    print(seqPair)
             else:
                 print(sample + " not found")
                 log = log + (sample + " not found")
                 continue
 
-            # sg序列读取
-            if (str(sg2) != "nan") and ("nan" != str(sg1)):
-                sg = sg1 + "," + sg2
-                # print(sg)
-            else:
-                sg = str(sg1) + str(sg2)
-                sg = sg.replace("nan", "")
-                # print(sg)
-
             # 比对的目标序列
-            amplicon = ref.loc[i]["原始序列"]
-            hdrRef = ref.loc[i]["修改后序列"]
-            cmd = CRISPResso + (" -r1 %s -r2 %s  -a %s -g %s  -e %s " % (
-            r1, r2, amplicon, sg, hdrRef)) + "  " + parameter + " -o %s/%s" % (output_path , sample)
+            amplicon = newRef.loc[i]["原始序列"]
+            baseFrom = newRef.loc[i]["原始碱基"].upper()
+            baseTo = newRef.loc[i]["修改后碱基"].upper()
+
+
+            # 判断是否为被编辑的链
+            if sg.upper().strip() in amplicon.upper():
+                pass
+            else:
+                amplicon = reverseDNA(amplicon)
+                print(output_name + " 反")
+            # --conversion_nuc_from
+            win = str(int(len(sg) / 2))
+            cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
+            r1, r2, amplicon, sg, baseFrom, baseTo)) + \
+                  parameter + " --quantification_window_center -" + win + " -w " + win + " --plot_window_size " + win + \
+                  " -o %s/%s" % (output_path, output_name)
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 
@@ -189,151 +211,150 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             f.write(a)
 
 
+        # 正式开始分析
         time0 = str(time.ctime())
         info = os.system("bash ./run.sh")
 
 
-
-        # 数据汇总
+        # 汇总结果
+        fileList = os.listdir()
         summaryFiles = ''
         sampleIndex = {}
         errorResults = []
-        result = pd.DataFrame(columns=["描述", "正确编辑占总体的比例",
-                                       "正确编辑占总编辑的比例",
-                                       "Indel占总体比例",
-
-                                       "NHEJ占总体体比例",
-                                       "总读数",
-                                       "实际使用读数",
+        result = pd.DataFrame(columns=["样品名", "描述",
+                                       "原始碱基",
+                                       "修改后碱基",
+                                       "最想看的位置",
+                                       "最想看的位置的效率",
+                                       "测序深度",
+                                       "各位点的特异性编辑效率",
+                                       '1', '2', '3', '4', '5', '6', '7', '8', '9', '10', '11', '12', '13', '14', '15',
+                                       '16', '17', '18', '19', '20',
+                                       '21', '22', '23', '24', '25', '26', '27', '28', '29', '30', '31', '32', '33',
+                                       '34', '35', '36', '37', '38', '39', '40',
+                                       "各位点的非特异编辑效率",
+                                       'u1', 'u2', 'u3', 'u4', 'u5', 'u6', 'u7', 'u8', 'u9', 'u10', 'u11', 'u12', 'u13',
+                                       'u14', 'u15', 'u16', 'u17', 'u18', 'u19', 'u20',
+                                       'u21', 'u22', 'u23', 'u24', 'u25', 'u26', 'u27', 'u28', 'u29', 'u30', 'u31',
+                                       'u32', 'u33', 'u34', 'u35', 'u36', 'u37', 'u38', 'u39', 'u40'
                                        ])
+
         n = 0
-        for i in ref.index:
-            name = ref.loc[i, "样品名"].strip()
-            result.loc[name, "描述"] = ref.loc[i, "描述"]
-            resultDir = output_path + "/"+ name
+        for i in newRef.index:
+            name = str(i)
+            real_name = str(newRef.loc[i, "样品名"]).strip()
+            # ex_time = str(ref.loc[i,"时间"]).strip()
+            resultDir = output_path + "/" + name
+
+
+            desire_position = str(newRef.loc[i,"最想看的位置"])
+            result.loc[name, "最想看的位置"] = desire_position
+
             try:
-                os.listdir(resultDir)
-            except:
-                result.loc[name, "正确编辑占总体的比例"] = "无测序文件"
+                for f in os.listdir(resultDir):
+                    if "html" in f:
+                        pass
+                    elif "ipynb" in f:
+                        pass
+                    else:
+                        folder = f
+                        logFile = resultDir + "/" + folder + "/CRISPResso_RUNNING_LOG.txt"
+                        infoFile = resultDir + "/" + folder + "/CRISPResso2_info.json"
+                        subsitutionFile = resultDir + "/" + folder + "/Quantification_window_substitution_frequency_table.txt"
+
+
+            except Exception as e:
+                print(e)
+                input()
                 continue
 
-            for f in os.listdir(resultDir):
-                if "html" in f:
-                    pass
-                elif "ipynb" in f:
-                    pass
-                else:
-                    folder = f
-                    logFile = resultDir + "/" + folder + "/CRISPResso_RUNNING_LOG.txt"
-                    allelesFrequencyTable = resultDir + "/" + folder + "/Alleles_frequency_table.zip"
-                    resultFile = resultDir + "/" + folder + "/CRISPResso_quantification_of_editing_frequency.txt"
-
-            # 判断有没有对这个样品进行分析
-            if os.path.isfile(logFile):
-                # 分析日志存在
-                pass
-            else:
-                # 分析日志不存在
-                result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
-                print(name + "error, 未进行CRISPResso分析")
-                continue  # 跳过循环，下一个样品
-
-            # 日志存在，继续进行分析。打开日志文件，读取信息
             with open(logFile) as log:
                 o = log.read()
-                if "ERROR" in o:  # 分析过程中出错，一般为reads数为0才出错。其次是分析窗口超出范围。
+                if "ERROR" in o:
                     errorResults.append(name)
-                    result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
-                    for line in o.splitlines():
-                        if "ERROR" in line:
-                            print(name + line)
-                    continue
+                    result.loc[name, "原始碱基"] = "No enough reads"
+                    print(name + " error")
                 else:
-                    # 1. 解压、读取分析结果文件
-                    allelesFrequencyTableZip = zipfile.ZipFile(allelesFrequencyTable)
-                    allelesData = allelesFrequencyTableZip.read('Alleles_frequency_table.txt')
-                    allelesFrequencyTableZip.extractall(resultDir + "/" + folder + "/")
 
-                    # 2. 逐条进行判断是否为ambiguous Indel
-                    ambiguousIndel = 0
-                    allelesFrequencyTable = pd.read_csv(resultDir + "/" + folder + "/Alleles_frequency_table.txt",
-                                                        sep='\t')
-                    for i in allelesFrequencyTable.index:
-                        if allelesFrequencyTable.loc[i, "Reference_Name"] == "AMBIGUOUS_Reference":
-                            if allelesFrequencyTable.loc[i, "n_deleted"] + allelesFrequencyTable.loc[
-                                i, "n_deleted"] > 0:
-                                reads = allelesFrequencyTable.loc[i, "#Reads"]
-                                ambiguousIndel = ambiguousIndel + reads
+                    # result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
+                    with open(infoFile) as info:
+                        info = info.read()
+                        baseFromPattern = re.compile('"conversion_nuc_from": "(.)"')
+                        baseToPattern = re.compile('"conversion_nuc_to": "(.)"')
+                        baseFrom = baseFromPattern.findall(info)[0].upper()
+                        baseTo = baseToPattern.findall(info)[0].upper()
+                        sgPattern = re.compile('Selected_nucleotide_frequency_table_around_sgRNA_.*?\.txt?')
+                        sgFile = sgPattern.search(info).group()
 
-                    # 3. 读取非ambiguous 序列的indel数据
-                    resultFrame = pd.read_csv(resultFile, sep='\t')
-                    # print(ambiguousIndel)
-                    HDR_unmodified = resultFrame.loc[1, 'Unmodified']
-                    allHDR = resultFrame.loc[1, 'Reads_aligned']
-                    HDR_modified = resultFrame.loc[1, 'Modified']
-                    reads_aligned = resultFrame.loc[1, 'Reads_aligned_all_amplicons']
-                    reads = resultFrame.loc[1, 'Reads_in_input']
-                    NHEJreads = resultFrame.loc[0, "Modified"]
-                    insertion = int(resultFrame.loc[0, "Insertions"]) + int(resultFrame.loc[1, "Insertions"])
-                    deletion = int(resultFrame.loc[0, "Deletions"]) + int(resultFrame.loc[1, "Deletions"])
-                    insertionAndDeletion = int(resultFrame.loc[0, "Insertions and Deletions"]) + int(
-                        resultFrame.loc[1, "Insertions and Deletions"])
+                        result.loc[name, "原始碱基"] = baseFrom.upper()
+                        result.loc[name, "修改后碱基"] = baseTo.upper()
+                        result.loc[name, "样品名"] = real_name
+                        result.loc[name, "描述"] = str(newRef.loc[i, "描述"]).strip()
+                        # result.loc[name,"时间"] = ex_time
 
-                    substitution = int(resultFrame.loc[0, "Substitutions"]) + int(resultFrame.loc[1, "Substitutions"])
-                    HDR_insertion = resultFrame.loc[0, "Insertions"]
+                    editTable = pd.read_csv(resultDir + "/" + folder + "/" + sgFile, sep="\t")
 
-                    # 4. 测序深度过滤
-                    if reads_aligned < 1500:
-                        result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
-                        print(name, "reads 过少")
-                        n = n + 1
-                        continue
+                    for location in editTable.columns:
+                        if "Unn" in location:
+                            # print("Fuck " + location)
+                            pass
+                        else:
+                            editLocation = str(location[1:])
+                            # print(editTable)
+                            # print(editLocation)
+                            # input()
+                            baseReads = {}
+                            baseReads["A"] = int(editTable.loc[0, location])
+                            baseReads["C"] = int(editTable.loc[1, location])
+                            baseReads["G"] = int(editTable.loc[2, location])
+                            baseReads["T"] = int(editTable.loc[3, location])
+                            baseReads["N"] = int(editTable.loc[4, location])
+                            baseReads["-"] = int(editTable.loc[5, location])
+                            allReads = sum(baseReads.values())
 
-                    result.loc[name, "总读数"] = reads
-                    result.loc[name, "实际使用读数"] = reads_aligned
+                            editReads = "%.2f%%" % (float(baseReads[baseTo] / allReads) * 100)
+                            # unspecificEditReads = "%.2f%%" % (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
+                            # uneditReads = "%.2f%%" % (( baseReads[baseFrom] /allReads)*100)
 
-                    try:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (float(0))
+                            result.loc[name, str(editLocation)] = editReads
+                            # print(editReads)
+                            result.loc[name, "测序深度"] = allReads
 
-                    try:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(allHDR) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (float(0) * 100)
+                            if str(int(editLocation)) == desire_position:
+                                result.loc[name, "最想看的位置的效率"] = editReads
 
-                    try:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (
-                                    float(NHEJreads) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (float(0) * 100)
+                            # result.loc[name,"n" + editLocation] = unspecificEditReads
 
-                    # try:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion)) / float(reads_aligned)*100)
-                    # except:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
+                    subTable = pd.read_csv(subsitutionFile, sep="\t")
 
-                    try:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion) + float(
-                            ambiguousIndel) - insertionAndDeletion) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % (float(0) * 100)
+                    # print(allReads)
+                    n = 0
+                    for base in subTable.columns:
+
+                        baseReads = {}
+                        # print(subTable.iloc[0,n])
+                        try:
+                            baseReads["A"] = subTable.iloc[0, n + 1]
+                            baseReads["C"] = subTable.iloc[1, n + 1]
+                            baseReads["G"] = subTable.iloc[2, n + 1]
+                            baseReads["T"] = subTable.iloc[3, n + 1]
+                            baseReads["N"] = subTable.iloc[4, n + 1]
+                            allSubReads = sum(baseReads.values())
+                            # print(name , allReads)
+                            # print(name, baseReads[baseFrom],baseReads[baseTo])
+                            unspecificEditReads = "%.2f%%" % (
+                                        float((allSubReads - baseReads[baseFrom] - baseReads[baseTo]) / allReads) * 100)
+                            # unspecificEditReads =  (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
+                            result.loc[name, "u" + str(n + 1)] = unspecificEditReads
+                            n = n + 1
+                        except:
+                            n = n + 1
+                            pass
 
         time1 = str(time.ctime())
-        result.loc[
-            "备注", "正确编辑占总体的比例"] = "有发生insertion 或者 deletetion的，或者两者同时发生的算为一个indel。统计来源：与原始amplicon类似的reads（NHEJ），与预期序列类似的（imperfect HDR），与原始、预期都相似但无法判断的reads（AMBIGUOUS）"
-        result.loc[
-            "Method", "正确编辑占总体的比例"] = "Modified genome was amplified and sequenced using illumina MiniSeq®. Each amlicon-seq data was analysed wiht CRISPResso2 and summarized by a home-made script. The indel is regard as the reads with insertion or deletion, but subsitution. Data analysis was performed by Qiqin Mo, and the code is avalibele at https://github.com/Hanhui-Ma-Lab/Script_for_Amplicon-seq "
         result.to_excel(output_path + "/结果汇总.xlsx")
-        ref.to_excel(output_path + "/原始信息表格.xlsx")
-        QMessageBox.about(self,"Done","已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
-
-
-
-
-
+        newRef.to_excel(output_path + "/原始信息表格.xlsx")
+        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
 
     def chooseFolder(self):
         path = QFileDialog.getExistingDirectory(self,"选择下机数据文件夹")

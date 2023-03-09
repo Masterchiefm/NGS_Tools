@@ -11,7 +11,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>PE/HDR分析</string>
+   <string>BE分析</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -111,7 +111,7 @@
          </column>
          <column>
           <property name="text">
-           <string>新建列</string>
+           <string>原始碱基</string>
           </property>
          </column>
          <column>
@@ -142,6 +142,21 @@
          <item row="0" column="3">
           <property name="text">
            <string>atgttttttattgttttgttttcctcctggaaaaatatgaacagtg...</string>
+          </property>
+         </item>
+         <item row="0" column="4">
+          <property name="text">
+           <string>t</string>
+          </property>
+         </item>
+         <item row="0" column="5">
+          <property name="text">
+           <string>C</string>
+          </property>
+         </item>
+         <item row="0" column="6">
+          <property name="text">
+           <string>2</string>
           </property>
          </item>
         </widget>
@@ -272,9 +287,8 @@
          <property name="plainText">
           <string>--exclude_bp_from_left 1
  --exclude_bp_from_right 1
- --quantification_window_size 20 
 --min_frequency_alleles_around_cut_to_plot 0.01 
- --quantification_window_center -3 </string>
+</string>
          </property>
         </widget>
        </item>
