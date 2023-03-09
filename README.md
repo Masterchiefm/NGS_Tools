@@ -16,6 +16,7 @@
 Ubuntu Desktop
 UOS （统一操作系统）
 Deepin OS （深度操作系统）
+使用其中任一个发行版均可
 ```
 
 配置要求：
