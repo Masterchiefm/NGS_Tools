@@ -46,7 +46,7 @@
        <item>
         <widget class="QPushButton" name="pushButton_bcl">
          <property name="text">
-          <string>BCL2Fastq</string>
+          <string>BCL2Fastq (内存 + swap &gt;= 32GB)</string>
          </property>
         </widget>
        </item>
@@ -82,7 +82,7 @@
      <x>0</x>
      <y>0</y>
      <width>591</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

@@ -59,8 +59,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         super(MyMainWin, self).__init__(parent)
 
         self.setupUi(self)
-        self.version = "1.2.0"
-        self.setWindowTitle(self.windowTitle() + "v"+self.version)
+        # self.version = "1.2.0"
+        # self.setWindowTitle(self.windowTitle() + "v"+self.version)
         output = "BCL2Fastq处理" + "\n\t\t\t" + "——Written by M.Q. at ShanghaiTech University"
         self.label.setText(output)
         self.selected_rows = []

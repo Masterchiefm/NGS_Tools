@@ -41,7 +41,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.groupBox)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 20))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -71,7 +71,7 @@ class Ui_MainWindow(object):
 "联系邮箱：moqiqin@live.com\n"
 ""))
         self.groupBox.setTitle(_translate("MainWindow", "请选择功能"))
-        self.pushButton_bcl.setText(_translate("MainWindow", "BCL2Fastq"))
+        self.pushButton_bcl.setText(_translate("MainWindow", "BCL2Fastq (内存 + swap >= 32GB)"))
         self.pushButton_HDR.setText(_translate("MainWindow", "HDR or PE"))
         self.pushButton_BE.setText(_translate("MainWindow", "BE"))
         self.pushButton_NHEJ.setText(_translate("MainWindow", "NHEJ"))
