@@ -105,6 +105,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     # 功能区
     def start(self):
+        self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         self.setSavePath()
         output_path = self.lineEdit_FqDir.text()
         path = self.plainTextEdit_readIllumina.toPlainText()
@@ -335,7 +336,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
     def chooseFolder(self):
-        path = QFileDialog.getExistingDirectory(self,"选择下机数据文件夹")
+        path = QFileDialog.getExistingDirectory(self,"选择fastq数据所在的文件夹")
         print(path)
         self.plainTextEdit_readIllumina.setPlainText(path)
 

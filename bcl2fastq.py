@@ -111,6 +111,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
     # 功能区
     def writeSampleSheet(self):
+        self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         header = """[Header],,,,,,,
 IEMFileVersion,5,,,,,,
 Date,2023/1/1,,,,,,
