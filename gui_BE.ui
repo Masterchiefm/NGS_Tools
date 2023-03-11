@@ -50,7 +50,10 @@
     <item>
      <widget class="QLabel" name="label_4">
       <property name="text">
-       <string>样品名请尽量写简洁，可以用A1,A2或者PE1,PE2,BE1这样的。禁止出现中文以及特殊符号，尤其是空格！文件路径也不能出现空格！描述请尽量写详细，这个是给你自己看的！</string>
+       <string>文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -331,7 +334,7 @@
      <x>0</x>
      <y>0</y>
      <width>1187</width>
-     <height>23</height>
+     <height>20</height>
     </rect>
    </property>
   </widget>

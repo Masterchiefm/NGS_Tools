@@ -145,7 +145,7 @@ class Ui_CRISPResso(object):
         self.verticalLayout_3.addWidget(self.label)
         CRISPResso.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(CRISPResso)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1187, 23))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1187, 20))
         self.menubar.setObjectName("menubar")
         CRISPResso.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(CRISPResso)
@@ -160,7 +160,7 @@ class Ui_CRISPResso(object):
         CRISPResso.setWindowTitle(_translate("CRISPResso", "NHEJ分析"))
         self.groupBox.setTitle(_translate("CRISPResso", "fastq数据文件夹"))
         self.pushButton_chooseFolder.setText(_translate("CRISPResso", "选择文件夹"))
-        self.label_4.setText(_translate("CRISPResso", "样品名请尽量写简洁，可以用A1,A2或者PE1,PE2,BE1这样的。禁止出现中文以及特殊符号，尤其是空格！文件路径也不能出现空格！描述请尽量写详细，这个是给你自己看的！"))
+        self.label_4.setText(_translate("CRISPResso", "文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！"))
         self.groupBox_2.setTitle(_translate("CRISPResso", "基本信息"))
         self.checkBox_auto_fill_col.setText(_translate("CRISPResso", "自动向下填充"))
         item = self.tableWidget.verticalHeaderItem(0)
@@ -177,15 +177,12 @@ class Ui_CRISPResso(object):
         self.tableWidget.setSortingEnabled(False)
         item = self.tableWidget.item(0, 0)
         item.setText(_translate("CRISPResso", "DS2-215\n"
-"\n"
 ""))
         item = self.tableWidget.item(0, 1)
         item.setText(_translate("CRISPResso", "V1-BE-IscB-SITE3\n"
-"\n"
 ""))
         item = self.tableWidget.item(0, 2)
         item.setText(_translate("CRISPResso", "aacacaccgggttaat\n"
-"\n"
 ""))
         item = self.tableWidget.item(0, 3)
         item.setText(_translate("CRISPResso", "atgttttttattgttttgttttcctcctggaaaaatatgaacagtgtttggtttaaacacaccgggttaataaggcatgtaagaagcacgcacaaaaaagccaactttatgtcaacaaattaaaatacctttttttattaaaaaaaaactatttagtt"))
