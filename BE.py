@@ -137,11 +137,13 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
 
         # 生成批处理文件
-        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
-        authorInfo = """This Script is generated automatically. Do not modify anything unless you know what you are doing.
-        Script Author:\tMo Qiqin
-        Contact:\tmoqq@shanghaitech.edu.cn
-        """
+
+        bashData = ["#!/bin/bash\n source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
+        authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
+                # Script Author:\tMo Qiqin
+                # Contact:\tmoqq@shanghaitech.edu.cn\n
+                """
+        bashData.append(authorInfo)
         thread = 12
         counter = 0
 
@@ -185,11 +187,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
             # 判断是否为被编辑的链
-            if sg.upper().strip() in amplicon.upper():
-                pass
-            else:
+            if sg.upper().strip() in reverseDNA(amplicon.upper()):
                 amplicon = reverseDNA(amplicon)
-                print(output_name + " 反")
+                print("non edit strand provided, I'll reverse it.")
+
             # --conversion_nuc_from
             win = str(int(len(sg) / 2))
             cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
