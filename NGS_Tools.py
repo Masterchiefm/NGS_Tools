@@ -46,7 +46,7 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
             else:
                 msg = latestVersion + "\n" + releaseInfo
                 # QMessageBox.about(self,"更新",msg)
-                answer = QMessageBox.question(self, "有新版本啦\t  ε٩(๑> ₃ <)۶з", msg + "\n\n Update now?")
+                answer = QMessageBox.question(self, "New version","----------------|有新版本啦\t  ε٩(๑> ₃ <)۶з |----------------\n\n\n" + msg + "\n\n Update now?")
                 if answer == QMessageBox.Yes:
                     webbrowser.open("https://gitee.com/MasterChiefm/NGS_Tools/releases/latest")
                 else:
