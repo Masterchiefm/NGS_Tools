@@ -15,7 +15,7 @@ import re
 import os
 import gzip
 # from Bio.Seq import Seq
-import threading
+# import threading
 import time
 
 # DNA序列工具
@@ -74,8 +74,6 @@ def extractSample(index1='', index2='',r1 = "",r2="",output_name=""):
 #the input $6 is R2 output
 
 
-
-idx=1
 index1=$1
 index2=$2
 r1=$3
@@ -83,37 +81,34 @@ r2=$4
 o1=$5
 o2=$6
 
-for varR1 in ${index1}
-do
-	zcat $r1| grep ^${varR1} -i -B1| grep @ | awk '{print$1}' > ${varR1}.tmp.id.txt
-		for varR2 in ${index2}
-		do
-			zcat ${r2}| grep -A1 -F -f ${varR1}.tmp.id.txt|\
-			grep ^${varR2} -i -B1| grep @| awk '{print$1}' >${idx}.${varR1}.${varR2}.id.txt
-			((idx+=1))
-		done
-	done
-	echo  split.
-	rm *.tmp.id.txt
-	#gunzip ${r1}
-	#gunzip ${r2}
-	echo stage1 done.
-	for j in *.id.txt
-	do
-		poolIndex=${j%.id.txt*}
-		zcat ${r1} | grep -A3 -F -f ${j} |grep -v "\-\-" > ${o1}
-		zcat ${r1} | grep -A3 -F -f ${j} |grep -v "\-\-" > ${o2}
-		echo zippppppp
-        gzip -f ${o1}
-        gzip -f ${o2}
-	done
-	rm *id.txt
-	echo reads have done."""
+session=$(cat /proc/sys/kernel/random/uuid)
+
+varR1=${index1}
+zcat $r1| grep ^${varR1} -i -B1| grep @ | awk '{print$1}' > ${varR1}.${session}.tmp.id.txt
+varR2=${index2}
+
+zcat ${r2}| grep -A1 -F -f ${varR1}.${session}.tmp.id.txt |\
+grep ^${varR2} -i -B1| grep @| awk '{print$1}' >${varR1}.${varR2}.${session}.id.txt
+
+echo  $r1 split.
+rm ${varR1}.${session}.tmp.id.txt
+#gunzip ${r1}
+#gunzip ${r2}
+    
+echo stage1 done.
+zcat ${r1} | grep -A3 -F -f ${varR1}.${varR2}.${session}.id.txt |grep -v "\-\-" > ${o1}
+zcat ${r1} | grep -A3 -F -f ${varR1}.${varR2}.${session}.id.txt |grep -v "\-\-" > ${o2}
+echo zip $r1
+gzip -f ${o1}
+gzip -f ${o2}
+
+rm ${varR1}.${varR2}.${session}.id.txt
+echo $r1 reads have done."""
     with open(".extract.sh", "w") as f:
         f.write(script)
-    cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " + output_name + "_R1.fastq " + output_name + "_R2,fastq"
-    print(cmd)
-    os.system(cmd)
+    # cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " + output_name + "_R1.fastq " + output_name + "_R2,fastq"
+    # print(cmd)
+    # os.system(cmd)
 
 
 class MyMainWin(QMainWindow, Ui_BCL2Fastq):
@@ -176,6 +171,16 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         self.setSavePath()
         time0 = time.ctime()
+        extractSample()
+        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
+        authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
+                        # Script Author:\tMo Qiqin
+                        # Contact:\tmoqq@shanghaitech.edu.cn\n
+                        """
+        bashData.append(authorInfo)
+        thread = 7
+        counter = 0
+
         output_path = self.lineEdit_FqDir.text()
         path = self.plainTextEdit_readIllumina.toPlainText()
         if path == "":
@@ -225,13 +230,24 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                     print(seqPair)
                 else:
 
-                    extractSample(index1,index2,r1,r2,output_path + "/" + sample + "_on_" + pool)
+                    # extractSample(index1,index2,r1,r2,output_path + "/" + sample + "_on_" + pool)
+                    cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  sample + "_on_" + pool + "_R1.fastq " +  sample + "_on_" + pool + "_R2,fastq"
+                    CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"
+                    bashData.append(CMD)
+                    counter = counter + 1
+                    if counter == thread:
+                        bashData.append("\nwait\n")
+                        counter = 0
             else:
                 print(pool + " not found")
                 log = log + (pool + " not found")
                 continue
 
-
+        bashData.append("\n wait \n date >> timeCounter\n")
+        a = "".join(bashData)
+        with open(".run.sh", "w") as f:
+            f.write(a)
+        os.system("bash ./.run.sh")
         lyric = getLyric()
         self.label.setText(lyric)
         time1 = time.ctime()
@@ -244,7 +260,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
 
     def chooseFolder(self):
-        path = QFileDialog.getExistingDirectory(self,"选择下机数据文件夹")
+        path = QFileDialog.getExistingDirectory(self,"选择 fastq.gz 数据文件夹")
         print(path)
         self.plainTextEdit_readIllumina.setPlainText(path)
 

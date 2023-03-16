@@ -51,6 +51,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="pushButton_demultiplex">
+         <property name="text">
+          <string>Fastq文件二次拆分</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="pushButton_HDR">
          <property name="text">
           <string>HDR or PE</string>

@@ -9,13 +9,14 @@ import HDR_PE
 import bcl2fastq
 import BE
 import NHEJ
+import demultiplex
 
 
 class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
         self.setupUi(self)
-        self.version = "1.2.2"
+        self.version = "1.3.1"
         self.setWindowTitle(self.windowTitle() + " v"+self.version)
         self.checkUpdate()
 
@@ -23,6 +24,7 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
         self.pushButton_BE.clicked.connect(self.startBE)
         self.pushButton_HDR.clicked.connect(self.startHDR)
         self.pushButton_NHEJ.clicked.connect(self.startNHEJ)
+        self.pushButton_demultiplex.clicked.connect(self.startDemultiplex)
 
     def checkUpdate(self):
         """使用requests模块和GitHub api获取最新版本"""
@@ -58,6 +60,11 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
 
     def startBCL(self):
         self.subwin = bcl2fastq.MyMainWin()
+        self.subwin.show()
+
+
+    def startDemultiplex(self):
+        self.subwin = demultiplex.MyMainWin()
         self.subwin.show()
 
 
