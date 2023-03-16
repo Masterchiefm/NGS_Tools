@@ -231,7 +231,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                 else:
 
                     # extractSample(index1,index2,r1,r2,output_path + "/" + sample + "_on_" + pool)
-                    cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2,fastq"
+                    cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
                     CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"
                     bashData.append(CMD)
                     counter = counter + 1
