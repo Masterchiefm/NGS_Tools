@@ -231,6 +231,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                 else:
 
                     # extractSample(index1,index2,r1,r2,output_path + "/" + sample + "_on_" + pool)
+                    ref.loc[i,"测序文件1"] = sample + "_on_" + pool + "_R1.fastq"
+                    ref.loc[i, "测序文件2"] = sample + "_on_" + pool + "_R2.fastq"
                     cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
                     CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"
                     bashData.append(CMD)
@@ -251,6 +253,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         lyric = getLyric()
         self.label.setText(lyric)
         time1 = time.ctime()
+        ref.to_excel(output_path + "/样品信息.xlsx")
         QMessageBox.about(self,"Done","已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
 
 

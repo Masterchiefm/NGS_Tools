@@ -192,10 +192,11 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 print("non edit strand provided, I'll reverse it.")
 
             # --conversion_nuc_from
-            win = str(int(len(sg) / 2))
+            center = str(int(len(sg) / 2))
+            win = str(int((int(len(sg) / 2)) + len(sg)%2))
             cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
             r1, r2, amplicon, sg, baseFrom, baseTo)) + \
-                  parameter + " --quantification_window_center -" + win + " -w " + win + " --plot_window_size " + win + \
+                  parameter + " --quantification_window_center -" + center + " -w " + win + " --plot_window_size " + win + \
                   " -o %s/%s" % (output_path, output_name)
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
