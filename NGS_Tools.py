@@ -1,4 +1,3 @@
-import os
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
 import json
@@ -16,7 +15,7 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
         self.setupUi(self)
-        self.version = "1.3.1"
+        self.version = "1.3.2"
         self.setWindowTitle(self.windowTitle() + " v"+self.version)
         self.checkUpdate()
 

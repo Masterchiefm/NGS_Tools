@@ -8,6 +8,7 @@ import pandas as pd
 from gui_PE import Ui_CRISPResso
 import subprocess
 import requests
+import webbrowser
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -370,7 +371,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def openFolder(self):
         try:
-            os.popen("nautilus " + self.lineEdit_FqDir.text())
+            webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            # os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))

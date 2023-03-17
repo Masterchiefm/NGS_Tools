@@ -8,6 +8,7 @@ import pandas as pd
 from gui_BE import Ui_CRISPResso
 import subprocess
 import requests
+import webbrowser
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -191,9 +192,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 amplicon = reverseDNA(amplicon)
                 print("non edit strand provided, I'll reverse it.")
 
-            # --conversion_nuc_from
+            # qualitification windown size and center
             center = str(int(len(sg) / 2))
             win = str(int((int(len(sg) / 2)) + len(sg)%2))
+
             cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
             r1, r2, amplicon, sg, baseFrom, baseTo)) + \
                   parameter + " --quantification_window_center -" + center + " -w " + win + " --plot_window_size " + win + \
@@ -393,7 +395,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def openFolder(self):
         try:
-            os.popen("nautilus " + self.lineEdit_FqDir.text())
+            webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            # os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))

@@ -1,6 +1,7 @@
 import os
-import re
+
 import time
+import webbrowser
 
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDialog, QMessageBox
@@ -301,7 +302,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def openFolder(self):
         try:
-            os.popen("nautilus " + self.lineEdit_FqDir.text())
+            webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            # os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))

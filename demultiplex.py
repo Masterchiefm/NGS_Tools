@@ -1,21 +1,11 @@
-import os
-import json
-import time
-
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDialog, QMessageBox
-import pandas as pd
 from gui_demultiplex import Ui_BCL2Fastq
 import subprocess
 import requests
-
-
+import webbrowser
 import pandas as pd
-import re
 import os
-import gzip
-# from Bio.Seq import Seq
-# import threading
 import time
 
 # DNA序列工具
@@ -296,7 +286,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
     def openFolder(self):
         try:
-            os.popen("nautilus " + self.lineEdit_FqDir.text())
+            webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            # os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))
