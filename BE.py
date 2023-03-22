@@ -9,6 +9,7 @@ from gui_BE import Ui_CRISPResso
 import subprocess
 import requests
 import webbrowser
+from background_task import bg_thread
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -87,11 +88,14 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_openFqDir.clicked.connect(self.openFolder)
         self.tableWidget.clicked.connect(self.disableAutoFill)
         self.pushButton_del_lines.clicked.connect(self.delLine)
+        self.groupBox_status.setVisible(False)
+
 
         # 按键区域
         self.pushButton_install.clicked.connect(self.installDependence)
         self.pushButton_generateFq.clicked.connect(self.start)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
+        self.pushButton_stop.clicked.connect(self.stopTread)
 
         crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
         verion = str(crisprInfo.stdout.read().decode("utf-8"))
@@ -101,6 +105,12 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             self.label_version.setText(str(verion.splitlines()[-2:]))
         else:
             self.label_version.setText("未安装")
+
+    def stopTread(self):
+        self.thread.terminate()
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+        QMessageBox.about(self, "停止", "已停止")
 
 
     # 功能区
@@ -113,8 +123,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             return
         self.exportSheet(tem_save=True)
         ref = pd.read_excel(".tmp.xlsx",index_col=0)
-        newRef = pd.DataFrame(columns=ref.columns)
-        newRef.to_excel('.tmp2.xlsx')
+        self.newRef = pd.DataFrame(columns=ref.columns)
+        self.newRef.to_excel('.tmp2.xlsx')
         for i in ref.index:
             try:
                 sample = ref.loc[i, "样品名"]
@@ -125,7 +135,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                     edit_site = 0
                 output_name = sample + "_" + edit_site + "-"  + base_from + "-" + base_to
 
-                newRef.loc[output_name] = ref.loc[i]
+                self.newRef.loc[output_name] = ref.loc[i]
             except:
                 continue
 
@@ -150,10 +160,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         cmdList = []
         fileList = os.listdir(path)
         seq_pairs = {}
-        for i in newRef.index:
-            sample = str(newRef.loc[i]["样品名"]).strip()
+        for i in self.newRef.index:
+            sample = str(self.newRef.loc[i]["样品名"]).strip()
             output_name = str(i).strip()
-            sg = newRef.loc[i]["sg"]
+            sg = self.newRef.loc[i]["sg"]
             # sg2 = ref.loc[i]["sgRNA2"]
             seqPair = []
 
@@ -168,8 +178,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             if seqPair:
                 r1 = seqPair[0]
                 r2 = seqPair[1]
-                newRef.loc[i,"测序文件1"] = r1
-                newRef.loc[i,"测序文件2"] = r2
+                self.newRef.loc[i,"测序文件1"] = r1
+                self.newRef.loc[i,"测序文件2"] = r2
 
                 if len(seqPair) != 2:
                     print(sample)
@@ -180,9 +190,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 continue
 
             # 比对的目标序列
-            amplicon = newRef.loc[i]["原始序列"]
-            baseFrom = newRef.loc[i]["原始碱基"].upper()
-            baseTo = newRef.loc[i]["修改后碱基"].upper()
+            amplicon = self.newRef.loc[i]["原始序列"]
+            baseFrom = self.newRef.loc[i]["原始碱基"].upper()
+            baseTo = self.newRef.loc[i]["修改后碱基"].upper()
 
 
             # 判断是否为被编辑的链
@@ -215,11 +225,22 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
         # 正式开始分析
-        time0 = str(time.ctime())
-        info = os.system("bash ./.run.sh")
+        self.time0 = str(time.ctime())
+        # info = os.system("bash ./.run.sh")
+        self.thread = bg_thread(self)
+        self.thread.finished.connect(self.summarize)
+        self.thread.start()
+        self.groupBox_status.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
 
 
+
+    def summarize(self):
         # 汇总结果
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+        output_path = self.lineEdit_FqDir.text()
+        path = self.plainTextEdit_readIllumina.toPlainText()
         fileList = os.listdir()
         summaryFiles = ''
         sampleIndex = {}
@@ -243,14 +264,14 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                                        ])
 
         n = 0
-        for i in newRef.index:
+        for i in self.newRef.index:
             name = str(i)
-            real_name = str(newRef.loc[i, "样品名"]).strip()
+            real_name = str(self.newRef.loc[i, "样品名"]).strip()
             # ex_time = str(ref.loc[i,"时间"]).strip()
             resultDir = output_path + "/" + name
 
 
-            desire_position = str(newRef.loc[i,"最想看的位置"])
+            desire_position = str(self.newRef.loc[i,"最想看的位置"])
             result.loc[name, "最想看的位置"] = desire_position
 
             try:
@@ -268,7 +289,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
             except Exception as e:
                 print(e)
-                input()
+                # input()
                 continue
 
             with open(logFile) as log:
@@ -292,7 +313,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                         result.loc[name, "原始碱基"] = baseFrom.upper()
                         result.loc[name, "修改后碱基"] = baseTo.upper()
                         result.loc[name, "样品名"] = real_name
-                        result.loc[name, "描述"] = str(newRef.loc[i, "描述"]).strip()
+                        result.loc[name, "描述"] = str(self.newRef.loc[i, "描述"]).strip()
                         # result.loc[name,"时间"] = ex_time
 
                     editTable = pd.read_csv(resultDir + "/" + folder + "/" + sgFile, sep="\t")
@@ -354,10 +375,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                             n = n + 1
                             pass
 
-        time1 = str(time.ctime())
+        self.time1 = str(time.ctime())
         result.to_excel(output_path + "/结果汇总.xlsx")
-        newRef.to_excel(output_path + "/原始信息表格.xlsx")
-        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
+        self.newRef.to_excel(output_path + "/原始信息表格.xlsx")
+        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + self.time0 + "\n结束时间：" + self.time1)
 
     def chooseFolder(self):
         path = QFileDialog.getExistingDirectory(self,"选择fastq数据所在的文件夹")
