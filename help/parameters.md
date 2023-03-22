@@ -3,14 +3,18 @@
 主页里的**部分内容**以及bcl2fastq帮助文档的**部分内容**，供你自己分析的时候自主选择合适参数使用。
 
 # 目录
-(bcl2fastq)[# bcl2fastq]
+[CRISPResso2](#CRISPResso2)
 
-()[]
+[bcl2fastq](#bcl2fastq)
+
+
 
 
 
 # CRISPResso2
-[官方文档](https://github.com/pinellolab/CRISPResso2)
+本部分只翻译了部分我认为你可能会用到的参数！！
+
+[CRISPResso2项目主页文档](https://github.com/pinellolab/CRISPResso2)
 
 ## 质控参数
 
@@ -63,10 +67,12 @@
 如果对齐的测序结果具有小于此参数的同源性，则将其丢弃。
 这对于过滤未与目标扩增子对齐的错误读取非常有用，例如由替代引物位置引起的错误读取。 （默认值：60）
 
-
+-------
 
 # bcl2fastq
-[官方文档](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)
+本部分只翻译了部分我认为你可能会用到的参数！！
+
+[illumina官方文档](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)
 
 bcl2fastq --help 获取以下参数文档：
 ```commandline

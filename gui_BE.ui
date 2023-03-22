@@ -275,16 +275,25 @@
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>额外运行参数:</string>
+            <string>参数设置:</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="pushButton_parameterInfo">
+          <widget class="QLabel" name="label_2">
            <property name="text">
-            <string>了解更多参数信息</string>
+            <string>[点击查看参数介绍](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::MarkdownText</enum>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::TextBrowserInteraction</set>
            </property>
           </widget>
          </item>
@@ -302,6 +311,7 @@
           <string>--exclude_bp_from_left 1
  --exclude_bp_from_right 1
 --min_frequency_alleles_around_cut_to_plot 0.01 
+--min_average_read_quality 10
 </string>
          </property>
         </widget>

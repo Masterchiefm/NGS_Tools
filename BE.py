@@ -103,8 +103,6 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             self.label_version.setText("未安装")
 
 
-
-
     # 功能区
     def start(self):
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_NHEJ.ui'
+# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_NHEJ.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CRISPResso(object):
     def setupUi(self, CRISPResso):
         CRISPResso.setObjectName("CRISPResso")
-        CRISPResso.resize(1187, 1195)
+        CRISPResso.resize(1797, 1195)
         self.centralwidget = QtWidgets.QWidget(CRISPResso)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -120,32 +120,41 @@ class Ui_CRISPResso(object):
         self.verticalLayout_3.addWidget(self.groupBox_2)
         self.groupBox_10 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_10.setObjectName("groupBox_10")
-        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.groupBox_10)
-        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.verticalLayout_5 = QtWidgets.QVBoxLayout(self.groupBox_10)
+        self.verticalLayout_5.setObjectName("verticalLayout_5")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
         self.label_2 = QtWidgets.QLabel(self.groupBox_10)
         self.label_2.setObjectName("label_2")
-        self.verticalLayout_9.addWidget(self.label_2)
+        self.horizontalLayout_3.addWidget(self.label_2)
+        self.label_5 = QtWidgets.QLabel(self.groupBox_10)
+        self.label_5.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label_5.setOpenExternalLinks(True)
+        self.label_5.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout_3.addWidget(self.label_5)
+        self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.plainTextEdit_parameters = PlainTextEdit(self.groupBox_10)
         self.plainTextEdit_parameters.setMaximumSize(QtCore.QSize(16777215, 250))
         self.plainTextEdit_parameters.setObjectName("plainTextEdit_parameters")
-        self.verticalLayout_9.addWidget(self.plainTextEdit_parameters)
+        self.verticalLayout_5.addWidget(self.plainTextEdit_parameters)
         self.pushButton_generateFq = QtWidgets.QPushButton(self.groupBox_10)
         self.pushButton_generateFq.setObjectName("pushButton_generateFq")
-        self.verticalLayout_9.addWidget(self.pushButton_generateFq)
+        self.verticalLayout_5.addWidget(self.pushButton_generateFq)
         self.lineEdit_FqDir = QtWidgets.QLineEdit(self.groupBox_10)
         self.lineEdit_FqDir.setClearButtonEnabled(True)
         self.lineEdit_FqDir.setObjectName("lineEdit_FqDir")
-        self.verticalLayout_9.addWidget(self.lineEdit_FqDir)
+        self.verticalLayout_5.addWidget(self.lineEdit_FqDir)
         self.pushButton_openFqDir = QtWidgets.QPushButton(self.groupBox_10)
         self.pushButton_openFqDir.setObjectName("pushButton_openFqDir")
-        self.verticalLayout_9.addWidget(self.pushButton_openFqDir)
+        self.verticalLayout_5.addWidget(self.pushButton_openFqDir)
         self.verticalLayout_3.addWidget(self.groupBox_10)
         self.label = QtWidgets.QLabel(self.centralwidget)
         self.label.setObjectName("label")
         self.verticalLayout_3.addWidget(self.label)
         CRISPResso.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(CRISPResso)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1187, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1797, 28))
         self.menubar.setObjectName("menubar")
         CRISPResso.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(CRISPResso)
@@ -198,11 +207,11 @@ class Ui_CRISPResso(object):
         self.pushButton_install.setText(_translate("CRISPResso", "安装CRISPResso2"))
         self.groupBox_10.setTitle(_translate("CRISPResso", "操作"))
         self.label_2.setText(_translate("CRISPResso", "额外运行参数:"))
+        self.label_5.setText(_translate("CRISPResso", "[点击查看参数介绍](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)"))
         self.plainTextEdit_parameters.setPlainText(_translate("CRISPResso", "--exclude_bp_from_left 1\n"
 " --exclude_bp_from_right 1\n"
-"--min_frequency_alleles_around_cut_to_plot 0.01 \n"
-" -w 22 \n"
-" --window_around_sgrna 22 \n"
+"--min_average_read_quality 10 \n"
+" --quantification_window_size 20 \n"
 "--quantification_window_center -3\n"
 ""))
         self.pushButton_generateFq.setText(_translate("CRISPResso", "开始"))

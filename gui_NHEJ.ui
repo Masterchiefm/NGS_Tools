@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1187</width>
+    <width>1797</width>
     <height>1195</height>
    </rect>
   </property>
@@ -241,13 +241,33 @@
       <property name="title">
        <string>操作</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>额外运行参数:</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>额外运行参数:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QLabel" name="label_5">
+           <property name="text">
+            <string>[点击查看参数介绍](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)</string>
+           </property>
+           <property name="textFormat">
+            <enum>Qt::MarkdownText</enum>
+           </property>
+           <property name="openExternalLinks">
+            <bool>true</bool>
+           </property>
+           <property name="textInteractionFlags">
+            <set>Qt::TextBrowserInteraction</set>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="PlainTextEdit" name="plainTextEdit_parameters">
@@ -260,9 +280,8 @@
          <property name="plainText">
           <string>--exclude_bp_from_left 1
  --exclude_bp_from_right 1
---min_frequency_alleles_around_cut_to_plot 0.01 
- -w 22 
- --window_around_sgrna 22 
+--min_average_read_quality 10 
+ --quantification_window_size 20 
 --quantification_window_center -3
 </string>
          </property>
@@ -306,8 +325,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1187</width>
-     <height>20</height>
+     <width>1797</width>
+     <height>28</height>
     </rect>
    </property>
   </widget>

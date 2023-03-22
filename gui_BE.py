@@ -137,12 +137,15 @@ class Ui_CRISPResso(object):
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
         self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.label_5 = QtWidgets.QLabel(self.groupBox_10)
+        self.label_5.setObjectName("label_5")
+        self.horizontalLayout_3.addWidget(self.label_5)
         self.label_2 = QtWidgets.QLabel(self.groupBox_10)
+        self.label_2.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label_2.setOpenExternalLinks(True)
+        self.label_2.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
         self.label_2.setObjectName("label_2")
         self.horizontalLayout_3.addWidget(self.label_2)
-        self.pushButton_parameterInfo = QtWidgets.QPushButton(self.groupBox_10)
-        self.pushButton_parameterInfo.setObjectName("pushButton_parameterInfo")
-        self.horizontalLayout_3.addWidget(self.pushButton_parameterInfo)
         self.verticalLayout_5.addLayout(self.horizontalLayout_3)
         self.plainTextEdit_parameters = PlainTextEdit(self.groupBox_10)
         self.plainTextEdit_parameters.setMaximumSize(QtCore.QSize(16777215, 250))
@@ -225,11 +228,12 @@ class Ui_CRISPResso(object):
         self.label_version.setText(_translate("CRISPResso", "TextLabel"))
         self.pushButton_install.setText(_translate("CRISPResso", "安装CRISPResso2"))
         self.groupBox_10.setTitle(_translate("CRISPResso", "操作"))
-        self.label_2.setText(_translate("CRISPResso", "额外运行参数:"))
-        self.pushButton_parameterInfo.setText(_translate("CRISPResso", "了解更多参数信息"))
+        self.label_5.setText(_translate("CRISPResso", "参数设置:"))
+        self.label_2.setText(_translate("CRISPResso", "[点击查看参数介绍](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)"))
         self.plainTextEdit_parameters.setPlainText(_translate("CRISPResso", "--exclude_bp_from_left 1\n"
 " --exclude_bp_from_right 1\n"
 "--min_frequency_alleles_around_cut_to_plot 0.01 \n"
+"--min_average_read_quality 10\n"
 ""))
         self.pushButton_generateFq.setText(_translate("CRISPResso", "开始"))
         self.pushButton_openFqDir.setText(_translate("CRISPResso", "打开结果文件夹"))
