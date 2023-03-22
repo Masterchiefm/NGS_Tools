@@ -271,13 +271,24 @@
       <property name="title">
        <string>操作</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_9">
+      <layout class="QVBoxLayout" name="verticalLayout_5">
        <item>
-        <widget class="QLabel" name="label_2">
-         <property name="text">
-          <string>额外运行参数:</string>
-         </property>
-        </widget>
+        <layout class="QHBoxLayout" name="horizontalLayout_3">
+         <item>
+          <widget class="QLabel" name="label_2">
+           <property name="text">
+            <string>额外运行参数:</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="pushButton_parameterInfo">
+           <property name="text">
+            <string>了解更多参数信息</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
        <item>
         <widget class="PlainTextEdit" name="plainTextEdit_parameters">
@@ -334,7 +345,7 @@
      <x>0</x>
      <y>0</y>
      <width>1187</width>
-     <height>20</height>
+     <height>28</height>
     </rect>
    </property>
   </widget>
