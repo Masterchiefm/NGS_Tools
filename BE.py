@@ -147,7 +147,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
         # 生成批处理文件
 
-        bashData = ["#!/bin/bash\n source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
+        bashData = ["#!/bin/bash\n source ~/miniconda3/bin/activate base  \n"]  # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
                 # Script Author:\tMo Qiqin
                 # Contact:\tmoqq@shanghaitech.edu.cn\n
@@ -218,7 +218,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 bashData.append("\nwait\n")
                 counter = 0
 
-        bashData.append("\n wait \n date >> timeCounter\n")
+        bashData.append("\n wait \n")
         a = "".join(bashData)
         with open(".run.sh", "w") as f:
             f.write(a)

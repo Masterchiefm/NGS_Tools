@@ -2,6 +2,11 @@
 ## 目的
 提供图形界面，让不会命令行的人也可以使用生信工具简便地分析基因编辑效果。
 
+## 视频教程
+[Bilibili-不会Linux也能自己用扩增子测序分析基因编辑效率](https://www.bilibili.com/video/BV1q84y1w7HH/)
+
+看完记得投币
+
 ## 功能
 1. 提供图形化的bcl2fastq界面，可以拆分下机数据（demultiplex）。
 详细说明请查阅[illumina说明](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)

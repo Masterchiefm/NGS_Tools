@@ -295,6 +295,29 @@
         </widget>
        </item>
        <item>
+        <widget class="QGroupBox" name="groupBox_status">
+         <property name="title">
+          <string>正在运行，别急，先做实验吧</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QProgressBar" name="progressBar">
+            <property name="value">
+             <number>24</number>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QPushButton" name="pushButton_stop">
+            <property name="text">
+             <string>停止</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QLineEdit" name="lineEdit_FqDir">
          <property name="clearButtonEnabled">
           <bool>true</bool>

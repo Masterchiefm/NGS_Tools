@@ -9,6 +9,7 @@ import pandas as pd
 from gui_NHEJ import Ui_CRISPResso
 import subprocess
 import requests
+from background_task import bg_thread
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -88,6 +89,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.tableWidget.clicked.connect(self.disableAutoFill)
         self.pushButton_del_lines.clicked.connect(self.delLine)
 
+        self.groupBox_status.setVisible(False)
+        self.pushButton_stop.clicked.connect(self.stopTread)
+
         # 按键区域
         self.pushButton_install.clicked.connect(self.installDependence)
         self.pushButton_generateFq.clicked.connect(self.start)
@@ -102,7 +106,11 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         else:
             self.label_version.setText("未安装")
 
-
+    def stopTread(self):
+        self.thread.terminate()
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+        QMessageBox.about(self, "停止", "已停止")
 
 
     # 功能区
@@ -122,7 +130,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
 
         # 生成批处理文件
-        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
+        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n "]  # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
         # Script Author:\tMo Qiqin
         # Contact:\tmoqq@shanghaitech.edu.cn\n
@@ -179,18 +187,31 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 bashData.append("\nwait\n")
                 counter = 0
 
-        bashData.append("\n wait \n date >> timeCounter\n")
+        bashData.append("\n wait \n")
         a = "".join(bashData)
         with open(".run.sh", "w") as f:
             f.write(a)
 
 
         # 正式开始分析
-        time0 = str(time.ctime())
-        info = os.system("bash ./.run.sh")
 
+        # info = os.system("bash ./.run.sh")
+        self.ref = ref
+        self.time0 = str(time.ctime())
+        # info = os.system("bash ./.run.sh")
+        self.thread = bg_thread(self)
+        self.thread.finished.connect(self.summarize)
+        self.thread.start()
+        self.groupBox_status.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
 
+    def summarize(self):
         # 汇总结果
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+
+        ref = self.ref
+        output_path = self.lineEdit_FqDir.text()
         summaryFiles = ''
         sampleIndex = {}
         errorResults = []
@@ -266,7 +287,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         result.to_excel(output_path + "/结果汇总.xlsx")
         ref.to_excel(output_path + "/原始信息表格.xlsx")
         time1 = str(time.ctime())
-        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
+        QMessageBox.about(self, "Done", "已完成！\n开始时间：" + self.time0 + "\n结束时间：" + time1)
 
     def chooseFolder(self):
         path = QFileDialog.getExistingDirectory(self,"选择fastq数据所在的文件夹")

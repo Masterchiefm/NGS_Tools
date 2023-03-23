@@ -193,7 +193,7 @@ Chemistry,DNA,,,,,,
             print(e)
 
         log_last = log_last = info.split("]")
-        QMessageBox.about(self,"运行结果",log_last[-1] + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" +cmd)
+        QMessageBox.about(self,"运行结果",log_last[-1] + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run " +cmd)
 
         # os.system("gedit " + log)
         lyric = getLyric()
