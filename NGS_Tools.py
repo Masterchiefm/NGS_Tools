@@ -15,7 +15,7 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
         self.setupUi(self)
-        self.version = "1.3.2"
+        self.version = "1.4.0"
         self.setWindowTitle(self.windowTitle() + " v"+self.version)
         self.checkUpdate()
 

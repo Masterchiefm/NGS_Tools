@@ -298,7 +298,6 @@
           <string>--exclude_bp_from_left 1
  --exclude_bp_from_right 1
  --quantification_window_size 20 
---min_frequency_alleles_around_cut_to_plot 0.01 
  --quantification_window_center -3 
 --min_average_read_quality 10</string>
          </property>

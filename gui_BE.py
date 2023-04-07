@@ -245,7 +245,6 @@ class Ui_CRISPResso(object):
         self.label_2.setText(_translate("CRISPResso", "[点击查看参数介绍](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)"))
         self.plainTextEdit_parameters.setPlainText(_translate("CRISPResso", "--exclude_bp_from_left 1\n"
 " --exclude_bp_from_right 1\n"
-"--min_frequency_alleles_around_cut_to_plot 0.01 \n"
 "--min_average_read_quality 10\n"
 ""))
         self.pushButton_generateFq.setText(_translate("CRISPResso", "开始"))

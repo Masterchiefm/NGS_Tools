@@ -310,7 +310,6 @@
          <property name="plainText">
           <string>--exclude_bp_from_left 1
  --exclude_bp_from_right 1
---min_frequency_alleles_around_cut_to_plot 0.01 
 --min_average_read_quality 10
 </string>
          </property>

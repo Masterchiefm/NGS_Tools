@@ -238,7 +238,6 @@ class Ui_CRISPResso(object):
         self.plainTextEdit_parameters.setPlainText(_translate("CRISPResso", "--exclude_bp_from_left 1\n"
 " --exclude_bp_from_right 1\n"
 " --quantification_window_size 20 \n"
-"--min_frequency_alleles_around_cut_to_plot 0.01 \n"
 " --quantification_window_center -3 \n"
 "--min_average_read_quality 10"))
         self.pushButton_generateFq.setText(_translate("CRISPResso", "开始"))
