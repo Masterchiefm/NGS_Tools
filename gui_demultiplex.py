@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_demultiplex.ui'
+# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_demultiplex.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_BCL2Fastq(object):
     def setupUi(self, BCL2Fastq):
         BCL2Fastq.setObjectName("BCL2Fastq")
-        BCL2Fastq.resize(1027, 1195)
+        BCL2Fastq.resize(1046, 1274)
         self.centralwidget = QtWidgets.QWidget(BCL2Fastq)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -171,6 +171,18 @@ class Ui_BCL2Fastq(object):
         self.pushButton_generateFq = QtWidgets.QPushButton(self.groupBox_10)
         self.pushButton_generateFq.setObjectName("pushButton_generateFq")
         self.verticalLayout_9.addWidget(self.pushButton_generateFq)
+        self.groupBox_status = QtWidgets.QGroupBox(self.groupBox_10)
+        self.groupBox_status.setObjectName("groupBox_status")
+        self.horizontalLayout_3 = QtWidgets.QHBoxLayout(self.groupBox_status)
+        self.horizontalLayout_3.setObjectName("horizontalLayout_3")
+        self.progressBar = QtWidgets.QProgressBar(self.groupBox_status)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setObjectName("progressBar")
+        self.horizontalLayout_3.addWidget(self.progressBar)
+        self.pushButton_stop = QtWidgets.QPushButton(self.groupBox_status)
+        self.pushButton_stop.setObjectName("pushButton_stop")
+        self.horizontalLayout_3.addWidget(self.pushButton_stop)
+        self.verticalLayout_9.addWidget(self.groupBox_status)
         self.lineEdit_FqDir = QtWidgets.QLineEdit(self.groupBox_10)
         self.lineEdit_FqDir.setClearButtonEnabled(True)
         self.lineEdit_FqDir.setObjectName("lineEdit_FqDir")
@@ -184,7 +196,7 @@ class Ui_BCL2Fastq(object):
         self.verticalLayout_3.addWidget(self.label)
         BCL2Fastq.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(BCL2Fastq)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1027, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1046, 28))
         self.menubar.setObjectName("menubar")
         BCL2Fastq.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(BCL2Fastq)
@@ -279,6 +291,9 @@ class Ui_BCL2Fastq(object):
         self.pushButton_install_bcl2fq.setText(_translate("BCL2Fastq", "安装bcl2fastq"))
         self.groupBox_10.setTitle(_translate("BCL2Fastq", "操作"))
         self.pushButton_generateFq.setText(_translate("BCL2Fastq", "开始拆分"))
+        self.groupBox_status.setTitle(_translate("BCL2Fastq", "进度"))
+        self.progressBar.setFormat(_translate("BCL2Fastq", "%v / %m"))
+        self.pushButton_stop.setText(_translate("BCL2Fastq", "停止"))
         self.pushButton_openFqDir.setText(_translate("BCL2Fastq", "打开结果文件夹"))
         self.label.setText(_translate("BCL2Fastq", "当前选定："))
 from plaintextedit import PlainTextEdit

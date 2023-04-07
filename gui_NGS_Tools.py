@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_NGS_Tools.ui'
+# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_NGS_Tools.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -42,9 +42,16 @@ class Ui_MainWindow(object):
         self.pushButton_NHEJ.setObjectName("pushButton_NHEJ")
         self.verticalLayout.addWidget(self.pushButton_NHEJ)
         self.verticalLayout_2.addWidget(self.groupBox)
+        self.label = QtWidgets.QLabel(self.centralwidget)
+        self.label.setTextFormat(QtCore.Qt.MarkdownText)
+        self.label.setAlignment(QtCore.Qt.AlignRight|QtCore.Qt.AlignTrailing|QtCore.Qt.AlignVCenter)
+        self.label.setOpenExternalLinks(True)
+        self.label.setTextInteractionFlags(QtCore.Qt.TextBrowserInteraction)
+        self.label.setObjectName("label")
+        self.verticalLayout_2.addWidget(self.label)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 28))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -79,3 +86,4 @@ class Ui_MainWindow(object):
         self.pushButton_HDR.setText(_translate("MainWindow", "HDR or PE"))
         self.pushButton_BE.setText(_translate("MainWindow", "BE"))
         self.pushButton_NHEJ.setText(_translate("MainWindow", "NHEJ"))
+        self.label.setText(_translate("MainWindow", "[关于本软件](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/README.md)    [LICENSE](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/LICENSE)"))

@@ -7,7 +7,8 @@ import webbrowser
 import pandas as pd
 import os
 import time
-
+from background_task import bgThread
+import background_task
 # DNA序列工具
 def reverseDNA(dna):
     #a = list(dna)
@@ -133,11 +134,15 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.pushButton_openFqDir.clicked.connect(self.openFolder)
         self.tableWidget.clicked.connect(self.disableAutoFill)
         self.pushButton_del_lines.clicked.connect(self.delLine)
+        self.groupBox_status.setVisible(False)
+
 
         # 按键区域
         self.pushButton_install_bcl2fq.clicked.connect(self.installDependence)
         self.pushButton_generateFq.clicked.connect(self.start)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
+        self.pushButton_stop.clicked.connect(self.stopTread)
+
 
         bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
         verion = str(bclInfo.stderr.read().decode("utf-8"))
@@ -153,19 +158,26 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
 
 
-
+    def stopTread(self):
+        self.thread.terminate()
+        self.monitor.terminate()
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+        QMessageBox.about(self, "停止", "已停止")
 
 
     # 功能区
     def start(self):
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         self.setSavePath()
-        time0 = time.ctime()
+        self.time0 = time.ctime()
         extractSample()
         bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
                         # Script Author:\tMo Qiqin
                         # Contact:\tmoqq@shanghaitech.edu.cn\n
+                        uid=$1
+                        mkdir /tmp/${uid}
                         """
         bashData.append(authorInfo)
         thread = 7
@@ -182,7 +194,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         cmdList = []
         fileList = os.listdir(path)
         seq_pairs = {}
-
+        task_sum = len(ref.index)
+        task_count = 0
         for i in ref.index:
             try:
                 sample = str(ref.loc[i, "样品名"]).replace(" ","")
@@ -223,8 +236,10 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                     # extractSample(index1,index2,r1,r2,output_path + "/" + sample + "_on_" + pool)
                     ref.loc[i,"测序文件1"] = sample + "_on_" + pool + "_R1.fastq"
                     ref.loc[i, "测序文件2"] = sample + "_on_" + pool + "_R2.fastq"
+                    task_count = task_count + 1
                     cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
-                    CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"
+                    CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n " + " touch /tmp/${uid}/" + str(task_count) + "\n\n" + \
+                "{\nsleep 10\n}&"
                     bashData.append(CMD)
                     counter = counter + 1
                     if counter == thread:
@@ -235,16 +250,44 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                 log = log + (pool + " not found")
                 continue
 
-        bashData.append("\n wait \n date >> timeCounter\n")
+        bashData.append("\n wait \n rm -rf /tmp/${uid} \n")
         a = "".join(bashData)
         with open(".run.sh", "w") as f:
             f.write(a)
-        os.system("bash ./.run.sh")
+
+
+
+        # os.system("bash ./.run.sh")
+        task_id = str(background_task.getUid())
+        self.thread = bgThread(task_id)
+        self.thread.finished.connect(self.summarize)
+        self.ref = ref
+        self.output_path = output_path
+
+        self.monitor = background_task.monitorThread(task_id)
+        self.progressBar.setRange(0, task_sum)
+
+        self.thread.start()
+        self.monitor.start()
+        self.monitor.updated.connect(self.updateStatus)
+        self.groupBox_status.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
+
+    def updateStatus(self, status):
+        self.progressBar.setValue(int(status))
+
+
+    def summarize(self):
+        self.monitor.terminate()
+        self.groupBox_status.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
         lyric = getLyric()
         self.label.setText(lyric)
         time1 = time.ctime()
+        ref = self.ref
+        output_path = self.output_path
         ref.to_excel(output_path + "/样品信息.xlsx")
-        QMessageBox.about(self,"Done","已完成！\n开始时间：" + time0 + "\n结束时间：" + time1)
+        QMessageBox.about(self,"Done","已完成！\n开始时间：" + self.time0 + "\n结束时间：" + time1)
 
 
 

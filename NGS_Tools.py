@@ -30,16 +30,18 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
 
         headers = {
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
-        latestInfo = requests.get("https://gitee.com/api/v5/repos/MasterChiefm/NGS_Tools/releases/latest", timeout=2,
-                                  headers=headers)
+
         # print(latestInfo)
         try:
+            latestInfo = requests.get("https://gitee.com/api/v5/repos/MasterChiefm/NGS_Tools/releases/latest",
+                                      timeout=1.5,
+                                      headers=headers)
             info = latestInfo.text
             info = json.loads(info)
             # print(info)
             latestVersion = info["tag_name"]
             releaseInfo = info["body"]
-            # print(latestVersion)
+            print(latestVersion)
 
             if latestVersion == self.version:
                 # QMessageBox.about(self, "更新", "已经是最新")

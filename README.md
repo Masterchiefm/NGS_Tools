@@ -74,3 +74,7 @@ CPU建议8核心以上
 
 ![](5.png)
 
+
+# 参数设置
+请关注质控、分析窗口这两个参数，这两个参数对结果有显著影响。[点击此处进行阅读](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)
+

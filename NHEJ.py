@@ -9,7 +9,8 @@ import pandas as pd
 from gui_NHEJ import Ui_CRISPResso
 import subprocess
 import requests
-from background_task import bg_thread
+from background_task import bgThread
+import background_task
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -108,6 +109,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def stopTread(self):
         self.thread.terminate()
+        self.monitor.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
         QMessageBox.about(self, "停止", "已停止")
@@ -134,6 +136,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
         # Script Author:\tMo Qiqin
         # Contact:\tmoqq@shanghaitech.edu.cn\n
+        uid=$1
+        mkdir /tmp/${uid}
         """
         bashData.append(authorInfo)
         thread = 12
@@ -143,7 +147,12 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         cmdList = []
         fileList = os.listdir(path)
         seq_pairs = {}
+
+        task_sum = len(ref.index)
+        task_count = 0
+
         for i in ref.index:
+            task_count = task_count + 1
             sample = str(ref.loc[i]["样品名"]).strip()
             # output_name = sample
             sg = ref.loc[i]["sg"]
@@ -180,14 +189,15 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 
-            CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"
+            CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n"  + " touch /tmp/${uid}/" + str(task_count) + "\n\n"  + \
+                "{\nsleep 10\n}&"
             bashData.append(CMD)
             counter = counter + 1
             if counter == thread:
                 bashData.append("\nwait\n")
                 counter = 0
 
-        bashData.append("\n wait \n")
+        bashData.append("\n wait \n rm -rf /tmp/${uid} ")
         a = "".join(bashData)
         with open(".run.sh", "w") as f:
             f.write(a)
@@ -199,14 +209,26 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.ref = ref
         self.time0 = str(time.ctime())
         # info = os.system("bash ./.run.sh")
-        self.thread = bg_thread(self)
+        task_id = str(background_task.getUid())
+        self.thread = bgThread(task_id)
         self.thread.finished.connect(self.summarize)
         self.thread.start()
+
+        self.monitor = background_task.monitorThread(task_id)
+        self.progressBar.setRange(0, task_sum)
+        self.monitor.start()
+        self.monitor.updated.connect(self.updateStatus)
+
+
         self.groupBox_status.setVisible(True)
         self.pushButton_generateFq.setEnabled(False)
 
+    def updateStatus(self,status):
+        self.progressBar.setValue(int(status))
+
     def summarize(self):
         # 汇总结果
+        self.monitor.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
 
