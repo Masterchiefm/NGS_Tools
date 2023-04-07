@@ -295,6 +295,37 @@
         </widget>
        </item>
        <item>
+        <widget class="QProgressBar" name="progressBar">
+         <property name="minimum">
+          <number>0</number>
+         </property>
+         <property name="maximum">
+          <number>0</number>
+         </property>
+         <property name="value">
+          <number>0</number>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <property name="textVisible">
+          <bool>true</bool>
+         </property>
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="invertedAppearance">
+          <bool>false</bool>
+         </property>
+         <property name="textDirection">
+          <enum>QProgressBar::TopToBottom</enum>
+         </property>
+         <property name="format">
+          <string>%v / %m 别急，别急</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLineEdit" name="lineEdit_FqDir">
          <property name="clearButtonEnabled">
           <bool>true</bool>
@@ -326,7 +357,7 @@
      <x>0</x>
      <y>0</y>
      <width>1027</width>
-     <height>20</height>
+     <height>28</height>
     </rect>
    </property>
   </widget>

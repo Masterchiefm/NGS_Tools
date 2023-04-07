@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'gui_bcl2fq.ui'
+# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_bcl2fq.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -145,6 +145,17 @@ class Ui_BCL2Fastq(object):
         self.pushButton_generateFq = QtWidgets.QPushButton(self.groupBox_10)
         self.pushButton_generateFq.setObjectName("pushButton_generateFq")
         self.verticalLayout_9.addWidget(self.pushButton_generateFq)
+        self.progressBar = QtWidgets.QProgressBar(self.groupBox_10)
+        self.progressBar.setMinimum(0)
+        self.progressBar.setMaximum(0)
+        self.progressBar.setProperty("value", 0)
+        self.progressBar.setAlignment(QtCore.Qt.AlignCenter)
+        self.progressBar.setTextVisible(True)
+        self.progressBar.setOrientation(QtCore.Qt.Horizontal)
+        self.progressBar.setInvertedAppearance(False)
+        self.progressBar.setTextDirection(QtWidgets.QProgressBar.TopToBottom)
+        self.progressBar.setObjectName("progressBar")
+        self.verticalLayout_9.addWidget(self.progressBar)
         self.lineEdit_FqDir = QtWidgets.QLineEdit(self.groupBox_10)
         self.lineEdit_FqDir.setClearButtonEnabled(True)
         self.lineEdit_FqDir.setObjectName("lineEdit_FqDir")
@@ -158,7 +169,7 @@ class Ui_BCL2Fastq(object):
         self.verticalLayout_3.addWidget(self.label)
         BCL2Fastq.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(BCL2Fastq)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1027, 20))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1027, 28))
         self.menubar.setObjectName("menubar")
         BCL2Fastq.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(BCL2Fastq)
@@ -220,6 +231,7 @@ class Ui_BCL2Fastq(object):
         self.label_2.setText(_translate("BCL2Fastq", "bcl2fastq运行参数:"))
         self.lineEdit_parameter.setText(_translate("BCL2Fastq", "--barcode-mismatches  0  --fastq-compression-level  8"))
         self.pushButton_generateFq.setText(_translate("BCL2Fastq", "开始拆分"))
+        self.progressBar.setFormat(_translate("BCL2Fastq", "%v / %m 别急，别急"))
         self.pushButton_openFqDir.setText(_translate("BCL2Fastq", "打开结果文件夹"))
         self.label.setText(_translate("BCL2Fastq", "当前选定："))
 from plaintextedit import PlainTextEdit

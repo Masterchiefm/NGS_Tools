@@ -8,6 +8,7 @@ import pandas as pd
 from gui_bcl2fq import Ui_BCL2Fastq
 import subprocess
 import requests
+import background_task
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -86,6 +87,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.pushButton_openFqDir.clicked.connect(self.openFolder)
         self.tableWidget.clicked.connect(self.disableAutoFill)
         self.pushButton_del_lines.clicked.connect(self.delLine)
+        self.progressBar.setVisible(False)
 
         # 按键区域
         self.pushButton_install_bcl2fq.clicked.connect(self.installDependence)
@@ -182,19 +184,30 @@ Chemistry,DNA,,,,,,
             echo 开始分析\n
             """ + cmd
             f.write(content)
+            self.cmd = cmd
 
-        info = subprocess.Popen(["bash ./.run.sh"],shell=True,stderr=subprocess.PIPE)
-        info = str(info.stderr.read())
-        # print(info)
-        try:
-            with open(log,"w") as f:
-                f.write(info)
-        except Exception as e:
-            print(e)
+        # info = subprocess.Popen(["bash ./.run.sh"],shell=True,stderr=subprocess.PIPE)
+        # info = str(info.stderr.read())
+        # # print(info)
+        # try:
+        #     with open(log,"w") as f:
+        #         f.write(info)
+        # except Exception as e:
+        #     print(e)
+        #
+        # log_last = info.split("]")
+        task = background_task.bcl2fastqThread()
+        task.finished.connect(self.finishe)
+        task.start()
+        self.progressBar.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
 
-        log_last = log_last = info.split("]")
-        QMessageBox.about(self,"运行结果",log_last[-1] + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run " +cmd)
 
+
+    def finishe(self,msg):
+        self.progressBar.setVisible(False)
+        self.pushButton_generateFq.setEnabled(True)
+        QMessageBox.about(self,"运行结果",msg + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run " + self.cmd)
         # os.system("gedit " + log)
         lyric = getLyric()
         self.label.setText(lyric)

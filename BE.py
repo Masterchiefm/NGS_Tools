@@ -92,6 +92,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_del_lines.clicked.connect(self.delLine)
         self.groupBox_status.setVisible(False)
 
+        self.pushButton_stop.setVisible(False)
+
 
         # 按键区域
         self.pushButton_install.clicked.connect(self.installDependence)

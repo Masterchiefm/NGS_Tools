@@ -136,6 +136,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.pushButton_del_lines.clicked.connect(self.delLine)
         self.groupBox_status.setVisible(False)
 
+        self.pushButton_stop.setVisible(False)
+
 
         # 按键区域
         self.pushButton_install_bcl2fq.clicked.connect(self.installDependence)

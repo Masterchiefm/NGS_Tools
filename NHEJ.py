@@ -93,6 +93,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.groupBox_status.setVisible(False)
         self.pushButton_stop.clicked.connect(self.stopTread)
 
+        self.pushButton_stop.setVisible(False)
+
         # 按键区域
         self.pushButton_install.clicked.connect(self.installDependence)
         self.pushButton_generateFq.clicked.connect(self.start)
