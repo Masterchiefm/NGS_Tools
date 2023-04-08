@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1797</width>
+    <width>1016</width>
     <height>1195</height>
    </rect>
   </property>
@@ -51,6 +51,9 @@
      <widget class="QLabel" name="label_4">
       <property name="text">
        <string>文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！</string>
+      </property>
+      <property name="wordWrap">
+       <bool>true</bool>
       </property>
      </widget>
     </item>
@@ -351,7 +354,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1797</width>
+     <width>1016</width>
      <height>28</height>
     </rect>
    </property>

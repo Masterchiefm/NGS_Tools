@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CRISPResso(object):
     def setupUi(self, CRISPResso):
         CRISPResso.setObjectName("CRISPResso")
-        CRISPResso.resize(1797, 1195)
+        CRISPResso.resize(1114, 1195)
         self.centralwidget = QtWidgets.QWidget(CRISPResso)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -33,6 +33,7 @@ class Ui_CRISPResso(object):
         self.horizontalLayout_2.addWidget(self.pushButton_chooseFolder)
         self.verticalLayout_3.addWidget(self.groupBox)
         self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.label_4.setWordWrap(True)
         self.label_4.setObjectName("label_4")
         self.verticalLayout_3.addWidget(self.label_4)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
@@ -176,7 +177,7 @@ class Ui_CRISPResso(object):
         self.verticalLayout_3.addWidget(self.label)
         CRISPResso.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(CRISPResso)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 1797, 28))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 1114, 28))
         self.menubar.setObjectName("menubar")
         CRISPResso.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(CRISPResso)

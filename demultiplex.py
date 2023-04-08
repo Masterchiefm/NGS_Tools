@@ -140,20 +140,12 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
 
         # 按键区域
-        self.pushButton_install_bcl2fq.clicked.connect(self.installDependence)
+        # self.pushButton_install_bcl2fq.clicked.connect(self.installDependence)
         self.pushButton_generateFq.clicked.connect(self.start)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
         self.pushButton_stop.clicked.connect(self.stopTread)
 
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
-        verion = str(bclInfo.stderr.read().decode("utf-8"))
-        print(verion)
-        if "Illumina" in verion:
-            print("### bcl2fastq ready ###")
-            self.label_version.setText(verion)
-        else:
-            self.label_version.setText("未安装")
 
 
 
@@ -170,8 +162,15 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
     # 功能区
     def start(self):
+        if self.plainTextEdit_readIllumina.toPlainText() == "":
+            QMessageBox.about(self, "Fastq folder not set", "ERROR:\n必须指定fastq文件所在的文件夹！")
+            return 0
+
+        if self.setSavePath():
+            pass
+        else:
+            return 0
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
-        self.setSavePath()
         self.time0 = time.ctime()
         extractSample()
         bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n date > timeCounter \n"]  # bash文件头
@@ -240,8 +239,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                     ref.loc[i, "测序文件2"] = sample + "_on_" + pool + "_R2.fastq"
                     task_count = task_count + 1
                     cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
-                    CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n " + " touch /tmp/${uid}/" + str(task_count) + "\n\n" + \
-                "{\nsleep 10\n}&"
+                    CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n " + " touch /tmp/${uid}/" + str(task_count) + "\n\n"
                     bashData.append(CMD)
                     counter = counter + 1
                     if counter == thread:
@@ -331,8 +329,9 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
     def openFolder(self):
         try:
-            webbrowser.open("file://" + self.lineEdit_FqDir.text())
-            # os.popen("nautilus " + self.lineEdit_FqDir.text())
+
+            # webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))

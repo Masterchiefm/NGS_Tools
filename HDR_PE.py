@@ -106,8 +106,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         if "[CRISPResso" in verion:
             print("### CRISPResso2 ready ###")
             self.label_version.setText(str(verion.splitlines()[-2:]))
+            self.pushButton_install.setVisible(False)
         else:
             self.label_version.setText("未安装")
+            self.pushButton_install.setVisible(True)
 
     def stopTread(self):
         self.thread.terminate()
@@ -118,8 +120,15 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     # 功能区
     def start(self):
+        if self.plainTextEdit_readIllumina.toPlainText() == "":
+            QMessageBox.about(self, "Fastq folder not set", "ERROR:\n必须指定fastq文件所在的文件夹！")
+            return 0
+
+        if self.setSavePath():
+            pass
+        else:
+            return 0
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
-        self.setSavePath()
         output_path = self.lineEdit_FqDir.text()
         path = self.plainTextEdit_readIllumina.toPlainText()
         if path == "":
@@ -195,8 +204,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 
-            CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n" + " touch /tmp/${uid}/" + str(task_count) + "\n\n"  + \
-                "{\nsleep 10\n}&"
+            CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n" + " touch /tmp/${uid}/" + str(task_count) + "\n\n"
             bashData.append(CMD)
             counter = counter + 1
             if counter == thread:

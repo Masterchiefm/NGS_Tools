@@ -14,12 +14,13 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.resize(591, 401)
+        MainWindow.resize(527, 450)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.centralwidget)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.plainTextEdit = QtWidgets.QPlainTextEdit(self.centralwidget)
+        self.plainTextEdit.setTextInteractionFlags(QtCore.Qt.LinksAccessibleByMouse|QtCore.Qt.TextEditable|QtCore.Qt.TextEditorInteraction|QtCore.Qt.TextSelectableByKeyboard|QtCore.Qt.TextSelectableByMouse)
         self.plainTextEdit.setObjectName("plainTextEdit")
         self.verticalLayout_2.addWidget(self.plainTextEdit)
         self.groupBox = QtWidgets.QGroupBox(self.centralwidget)
@@ -51,7 +52,7 @@ class Ui_MainWindow(object):
         self.verticalLayout_2.addWidget(self.label)
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QtWidgets.QMenuBar(MainWindow)
-        self.menubar.setGeometry(QtCore.QRect(0, 0, 591, 28))
+        self.menubar.setGeometry(QtCore.QRect(0, 0, 527, 28))
         self.menubar.setObjectName("menubar")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
@@ -64,7 +65,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "NGS_Tools"))
-        self.plainTextEdit.setPlainText(_translate("MainWindow", "NGS工具箱：\n"
+        self.plainTextEdit.setPlainText(_translate("MainWindow", "扩增子测序NGS工具箱：\n"
 "\n"
 "本工具箱提供了图形界面并缝合了一系列软件以实现以下功能：\n"
 "1. 将illumina下机数据转换成fastq数据。\n"
@@ -72,9 +73,6 @@ class Ui_MainWindow(object):
 "3. 汇总结果\n"
 "\n"
 "程序源码公开于 https://github.com/Masterchiefm/NGS_Tools\n"
-"\n"
-"\n"
-"\n"
 "\n"
 "\n"
 "本程序由莫淇钦创建于上海科技大学马涵慧实验室\n"

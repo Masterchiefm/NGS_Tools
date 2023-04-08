@@ -100,8 +100,10 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         if "Illumina" in verion:
             print("### bcl2fastq ready ###")
             self.label_version.setText(verion)
+            self.pushButton_install_bcl2fq.setVisible(False)
         else:
             self.label_version.setText("未安装")
+            self.pushButton_install_bcl2fq.setVisible(True)
 
 
 
@@ -172,9 +174,9 @@ Chemistry,DNA,,,,,,
 
         self.setSavePath()
         output_path = self.lineEdit_FqDir.text()
-        "bcl2fastq  -R  /home/chief/220926_MN00855_0018_A000H3NJMC  -o  /home/chief/out  --sample-sheet  /home/chief/220926_MN00855_0018_A000H3NJMC/SampleSheet.csv   --barcode-mismatches   0 "
+        # "bcl2fastq  -R  /home/chief/220926_MN00855_0018_A000H3NJMC  -o  /home/chief/out  --sample-sheet  /home/chief/220926_MN00855_0018_A000H3NJMC/SampleSheet.csv   --barcode-mismatches   0 "
         bcl2fq = "bcl2fastq "
-        log = "/tmp/bcl2fastq_" + str(time.time())
+        # log = "/tmp/bcl2fastq_" + str(time.time())
         cmd = bcl2fq + " -R " + self.plainTextEdit_readIllumina.toPlainText().strip()  + " -o " + self.lineEdit_FqDir.text() + \
               " " +self.lineEdit_parameter.text() + " " + \
               " --sample-sheet " + self.plainTextEdit_readIllumina.toPlainText().strip() +"/SampleSheet.csv  "
@@ -197,14 +199,14 @@ Chemistry,DNA,,,,,,
         #
         # log_last = info.split("]")
         task = background_task.bcl2fastqThread()
-        task.finished.connect(self.finishe)
+        task.finished.connect(self.finish)
         task.start()
         self.progressBar.setVisible(True)
         self.pushButton_generateFq.setEnabled(False)
 
 
 
-    def finishe(self,msg):
+    def finish(self,msg):
         self.progressBar.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
         QMessageBox.about(self,"运行结果",msg + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run " + self.cmd)

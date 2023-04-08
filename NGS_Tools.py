@@ -1,5 +1,5 @@
 from PyQt5 import QtCore
-from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox
+from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QDesktopWidget
 import json
 import requests
 import webbrowser
@@ -24,6 +24,8 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
         self.pushButton_HDR.clicked.connect(self.startHDR)
         self.pushButton_NHEJ.clicked.connect(self.startNHEJ)
         self.pushButton_demultiplex.clicked.connect(self.startDemultiplex)
+
+        self.centerWin()
 
     def checkUpdate(self):
         """使用requests模块和GitHub api获取最新版本"""
@@ -58,6 +60,12 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
             # QMessageBox.about(self,"网络错误","无法连接到GitHub服务器")
             print(e)
 
+    def centerWin(self):
+        '''让窗体居中'''
+        screen = QDesktopWidget()
+        screen_size = screen.screenGeometry()
+        size = self.geometry()
+        self.move(int((screen_size.width()-size.width())/2), int((screen_size.height()-size.height())/2))
 
     def startBCL(self):
         self.subwin = bcl2fastq.MyMainWin()
