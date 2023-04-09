@@ -199,10 +199,16 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             seq_pairs[sample] = (seqPair)
 
             if seqPair:
-                r1 = seqPair[0]
-                r2 = seqPair[1]
-                self.newRef.loc[i,"测序文件1"] = r1
-                self.newRef.loc[i,"测序文件2"] = r2
+                try:
+                    r1 = seqPair[0]
+                    self.newRef.loc[i, "测序文件1"] = os.path.basename(r1)
+                except:
+                    pass
+                try:
+                    r2 = seqPair[1]
+                    self.newRef.loc[i, "测序文件2"] = os.path.basename(r2)
+                except:
+                    pass
 
                 if len(seqPair) != 2:
                     print(sample)
@@ -310,6 +316,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
             desire_position = str(self.newRef.loc[i,"最想看的位置"])
             result.loc[name, "最想看的位置"] = desire_position
+            result.loc[name, "样品名"] = real_name
+            result.loc[name, "描述"] = str(self.newRef.loc[i, "描述"]).strip()
 
             try:
                 for f in os.listdir(resultDir):
@@ -349,8 +357,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
                         result.loc[name, "原始碱基"] = baseFrom.upper()
                         result.loc[name, "修改后碱基"] = baseTo.upper()
-                        result.loc[name, "样品名"] = real_name
-                        result.loc[name, "描述"] = str(self.newRef.loc[i, "描述"]).strip()
+
                         # result.loc[name,"时间"] = ex_time
 
                     editTable = pd.read_csv(resultDir + "/" + folder + "/" + sgFile, sep="\t")
@@ -451,8 +458,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def openFolder(self):
         try:
-            webbrowser.open("file://" + self.lineEdit_FqDir.text())
-            # os.popen("nautilus " + self.lineEdit_FqDir.text())
+            # webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))

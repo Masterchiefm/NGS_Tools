@@ -179,10 +179,16 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             seq_pairs[sample] = (seqPair)
 
             if seqPair:
-                r1 = seqPair[0]
-                r2 = seqPair[1]
-                ref.loc[i,"测序文件1"] = r1
-                ref.loc[i,"测序文件2"] = r2
+                try:
+                    r1 = seqPair[0]
+                    ref.loc[i, "测序文件2"] = os.path.basename(r1)
+                except Exception as e:
+                    ref.loc[i, "测序文件2"] = "无文件"
+                try:
+                    r2 = seqPair[1]
+                    ref.loc[i, "测序文件1"] = os.path.basename(r2)
+                except Exception as e:
+                    ref.loc[i, "测序文件1"] = "无文件"
 
                 if len(seqPair) != 2:
                     print(sample)
@@ -355,8 +361,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def openFolder(self):
         try:
-            webbrowser.open("file://" + self.lineEdit_FqDir.text())
-            # os.popen("nautilus " + self.lineEdit_FqDir.text())
+            # webbrowser.open("file://" + self.lineEdit_FqDir.text())
+            os.popen("nautilus " + self.lineEdit_FqDir.text())
         except Exception as e:
             print(e)
             QMessageBox.about(self,"啊啊啊","自己打开文件浏览器看吧\n" + str(e))
