@@ -162,11 +162,11 @@ class bcl2fastqThread(QThread):
         return log_last
 
     def run(self) -> None:
-        print("demux...")
+        print("开始拆分")
         log_last = self.bcl2fastq()
         time.sleep(3)
         self.finished.emit(log_last)
-        print("demux donme")
+        print("拆分完成")
 
 
 
