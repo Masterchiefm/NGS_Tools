@@ -146,17 +146,19 @@ class bcl2fastqThread(QThread):
         super(bcl2fastqThread,self).__init__()
 
     def bcl2fastq(self):
-        info = subprocess.Popen(["bash ./.run.sh"], shell=True, stderr=subprocess.PIPE)
-        info = str(info.stderr.read())
-        log = "/tmp/bcl2fastq_" + str(time.time())
+        log_path = "/tmp/bcl2fastq_" + str(time.time())
+        os.system("bash ./.run.sh 2>" +log_path)
+        # info = subprocess.Popen(["bash ./.run.sh"], shell=True, stderr=subprocess.PIPE)
+        # info = str(info.stderr.read())
+
         # print(info)
         try:
-            with open(log, "w") as f:
-                f.write(info)
+            with open(log_path, "r") as f:
+                log = f.read()
         except Exception as e:
             print(e)
 
-        log_last = info.split("]")[-1]
+        log_last = log.split("]")[-1]
         return log_last
 
     def run(self) -> None:

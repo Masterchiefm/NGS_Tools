@@ -189,7 +189,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
             # sg序列读取
             if (str(sg2) != "nan") and ("nan" != str(sg1)):
-                sg = sg1 + "," + sg2
+                sg = sg1.strip() + "," + sg2.strip()
                 # print(sg)
             else:
                 sg = str(sg1) + str(sg2)

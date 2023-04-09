@@ -115,7 +115,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
     # 功能区
     def writeSampleSheet(self):
-        self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
+
         header = """[Header],,,,,,,
 IEMFileVersion,5,,,,,,
 Date,2023/1/1,,,,,,
@@ -172,11 +172,16 @@ Chemistry,DNA,,,,,,
             f.write(content)
 
 
-        self.setSavePath()
+        p = self.setSavePath()
+        if p:
+            pass
+        else:
+            return
+        self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         output_path = self.lineEdit_FqDir.text()
         # "bcl2fastq  -R  /home/chief/220926_MN00855_0018_A000H3NJMC  -o  /home/chief/out  --sample-sheet  /home/chief/220926_MN00855_0018_A000H3NJMC/SampleSheet.csv   --barcode-mismatches   0 "
         bcl2fq = "bcl2fastq "
-        # log = "/tmp/bcl2fastq_" + str(time.time())
+        log = "/tmp/bcl2fastq_" + str(time.time())
         cmd = bcl2fq + " -R " + self.plainTextEdit_readIllumina.toPlainText().strip()  + " -o " + self.lineEdit_FqDir.text() + \
               " " +self.lineEdit_parameter.text() + " " + \
               " --sample-sheet " + self.plainTextEdit_readIllumina.toPlainText().strip() +"/SampleSheet.csv  "
@@ -184,19 +189,20 @@ Chemistry,DNA,,,,,,
             content = """#!/bin/bash
             source ~/miniconda3/bin/activate base
             echo 开始分析\n
-            """ + cmd
+            """ + "{\n" + cmd + "\n}& \nwait"
             f.write(content)
             self.cmd = cmd
 
         # info = subprocess.Popen(["bash ./.run.sh"],shell=True,stderr=subprocess.PIPE)
-        # info = str(info.stderr.read())
+        # info = str(info.stderr.read().decode('utf-8'))
+        # msg = info.split("]")[-1:]
         # # print(info)
         # try:
         #     with open(log,"w") as f:
         #         f.write(info)
         # except Exception as e:
         #     print(e)
-        #
+
         # log_last = info.split("]")
         task = background_task.bcl2fastqThread()
         task.finished.connect(self.finish)
