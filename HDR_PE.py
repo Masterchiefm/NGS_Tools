@@ -116,7 +116,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.monitor.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
-        QMessageBox.about(self, "停止", "已停止")
+        QMessageBox.about(self, "停止", "已停止.")
 
     # 功能区
     def start(self):
