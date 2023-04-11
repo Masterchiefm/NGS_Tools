@@ -16,7 +16,7 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
         self.setupUi(self)
-        self.version = "1.4.0"
+        self.version = "1.4.1"
         self.setWindowTitle(self.windowTitle() + " v"+self.version)
         self.checkUpdate()
 
@@ -70,27 +70,27 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
         self.move(int((screen_size.width()-size.width())/2), int((screen_size.height()-size.height())/2))
 
     def startBCL(self):
-        self.subwin = bcl2fastq.MyMainWin()
-        self.subwin.show()
+        self.subwin_bcl = bcl2fastq.MyMainWin()
+        self.subwin_bcl.show()
 
 
     def startDemultiplex(self):
-        self.subwin = demultiplex.MyMainWin()
-        self.subwin.show()
+        self.subwin_d = demultiplex.MyMainWin()
+        self.subwin_d.show()
 
 
 
     def startHDR(self):
-        self.subwin = HDR_PE.MyMainWin()
-        self.subwin.show()
+        self.subwin_hdr = HDR_PE.MyMainWin()
+        self.subwin_hdr.show()
 
     def startBE(self):
-        self.subwin = BE.MyMainWin()
-        self.subwin.show()
+        self.subwin_be = BE.MyMainWin()
+        self.subwin_be.show()
 
     def startNHEJ(self):
-        self.subwin = NHEJ.MyMainWin()
-        self.subwin.show()
+        self.subwin_nhej = NHEJ.MyMainWin()
+        self.subwin_nhej.show()
 
 
 

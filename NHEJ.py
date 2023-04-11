@@ -151,7 +151,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         mkdir /tmp/${uid}
         """
         bashData.append(authorInfo)
-        thread = 12
+        thread = int(os.cpu_count())
+        if thread < 8:
+            thread = 8
         counter = 0
 
         log = ''
