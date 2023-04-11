@@ -2,6 +2,7 @@ import os
 import re
 import time
 
+# import qdarktheme
 from PyQt5 import QtCore
 from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDialog, QMessageBox
 import pandas as pd
@@ -10,8 +11,9 @@ import background_task
 from gui_BE import Ui_CRISPResso
 import subprocess
 import requests
-import webbrowser
+# import webbrowser
 from background_task import bgThread
+# from qt_material import apply_stylesheet
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -623,8 +625,10 @@ if __name__ == "__main__":
 
 
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    # qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
-    # app.installTranslator(trans)
+    # apply_stylesheet(app, theme='dark_amber.xml')
+    # qdarktheme.setup_theme("auto")
     win = MyMainWin()
     win.show()
     sys.exit(app.exec_())

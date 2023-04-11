@@ -9,6 +9,7 @@ import bcl2fastq
 import BE
 import NHEJ
 import demultiplex
+import qdarktheme
 
 
 class MyMainWin(QMainWindow, Ui_MainWindow):
@@ -103,7 +104,9 @@ if __name__ == "__main__":
 
 
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
+    qdarktheme.setup_theme("auto")
     # app.installTranslator(trans)
     win = MyMainWin()
     win.show()
