@@ -53,9 +53,13 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
                 msg = latestVersion + "\n" + releaseInfo
                 # QMessageBox.about(self,"更新",msg)
                 box = QMessageBox()
-                answer = box.question(self, "New version","----------------|有新版本啦\t  ε٩(๑> ₃ <)۶з |----------------\n\n\n" + msg + "\n\n Update now?")
+                answer = box.question(self, "New version","----------------|有新版本啦\t  ε٩(๑> ₃ <)۶з |----------------\n\n\n" + msg + \
+                                      "请下载最新版本，解压后在属性中赋予运行权限再使用\n\n 现在更新?")
                 if answer == QMessageBox.Yes:
                     webbrowser.open("https://gitee.com/MasterChiefm/NGS_Tools/releases/latest")
+                    self = QMessageBox.about(self,"Stopped","进程已关闭，请下载最新版本，请下载最新版本使用。\n解压最新版本后，后在属性中赋予运行权限再使用")
+                    app.exec_()
+                    print("up")
                 else:
                     return
         except Exception as e:
