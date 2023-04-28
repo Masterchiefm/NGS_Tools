@@ -121,7 +121,7 @@ class lyricThread(QThread):
 
     def run(self) -> None:
         while True:
-            time.sleep(10)
+            time.sleep(600)
             lyric = self.getLyric()
             self.updated.emit(lyric)
 
