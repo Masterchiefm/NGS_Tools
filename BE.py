@@ -12,9 +12,7 @@ from gui_BE import Ui_CRISPResso
 import subprocess
 import requests
 # import webbrowser
-from background_task import bgThread
-# from qt_material import apply_stylesheet
-
+from background_task import lyricThread, bgCRISPResso
 # DNA序列工具
 def reverseDNA(dna):
     #a = list(dna)
@@ -94,7 +92,11 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_del_lines.clicked.connect(self.delLine)
         self.groupBox_status.setVisible(False)
 
-        self.pushButton_stop.setVisible(False)
+        # self.pushButton_stop.setVisible(False)
+
+        # update lyric
+        self.lyricThread = lyricThread()
+        self.lyricThread.updated.connect(self.updateLyric)
 
 
         # 按键区域
@@ -116,15 +118,20 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
     def stopTread(self):
+        self.lyricThread.terminate()
         self.thread.terminate()
-        self.monitor.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
-        QMessageBox.about(self, "停止", "已停止")
+        self.summarize()
+        self.progressBar.setValue(0)
+        QMessageBox.about(self, "停止", "已停止，目前已经分析的部分样品将会被汇总。\n\n 在停止的这个瞬间，后台尚有数个样品正在分析，可能会稍微多占用几分钟电脑资源，无需理会即可。")
 
 
+    def updateLyric(self,lyric):
+        self.label.setText(lyric)
     # 功能区
     def start(self):
+        self.lyricThread.start()
         if self.plainTextEdit_readIllumina.toPlainText() == "":
             QMessageBox.about(self,"Fastq folder not set","ERROR:\n必须指定fastq文件所在的文件夹！")
             return 0
@@ -255,36 +262,33 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
         bashData.append("\n wait \n rm -rf /tmp/${uid} ")
         a = "".join(bashData)
-        with open(".run.sh", "w") as f:
+
+
+        with open(".tmp.sh", "w") as f:
             f.write(a)
 
 
         # 正式开始分析
         self.time0 = str(time.ctime())
-        # info = os.system("bash ./.run.sh")
-        task_id = str(background_task.getUid())
-        self.thread = bgThread(task_id)
+        self.progressBar.setRange(0, task_sum)
+        self.groupBox_status.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
+        self.thread = bgCRISPResso(uid="",cmdList=cmdList)
+        self.thread.updated.connect(self.updateStatus)
         self.thread.finished.connect(self.summarize)
         self.thread.start()
 
-        self.monitor = background_task.monitorThread(task_id)
 
-        self.progressBar.setRange(0, task_sum)
-        # self.progressBar.setFormat("%v / %m ")
-        self.monitor.start()
-        self.monitor.updated.connect(self.updateStatus)
-        self.groupBox_status.setVisible(True)
-        self.pushButton_generateFq.setEnabled(False)
-
-
-    def updateStatus(self,status):
-        self.progressBar.setValue(int(status))
+    def updateStatus(self,num):
+        current_value = int(self.progressBar.value())
+        self.progressBar.setValue(int(current_value + num))
 
 
 
     def summarize(self):
         # 汇总结果
-        self.monitor.terminate()
+        # self.monitor.terminate()
+        self.lyricThread.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
         output_path = self.lineEdit_FqDir.text()
@@ -335,94 +339,104 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                         logFile = resultDir + "/" + folder + "/CRISPResso_RUNNING_LOG.txt"
                         infoFile = resultDir + "/" + folder + "/CRISPResso2_info.json"
                         subsitutionFile = resultDir + "/" + folder + "/Quantification_window_substitution_frequency_table.txt"
+                        if not os.path.exists(logFile):
+                            continue
+                        if not os.path.exists(infoFile):
+                            continue
+                        if not os.path.exists(subsitutionFile):
+                            continue
 
 
             except Exception as e:
                 print(e)
                 # input()
                 continue
+            try:
+                with open(logFile) as log:
+                    o = log.read()
+                    if "ERROR" in o:
+                        errorResults.append(name)
+                        result.loc[name, "原始碱基"] = "No enough reads"
+                        print(name + " error")
+                    else:
 
-            with open(logFile) as log:
-                o = log.read()
-                if "ERROR" in o:
-                    errorResults.append(name)
-                    result.loc[name, "原始碱基"] = "No enough reads"
-                    print(name + " error")
-                else:
+                        # result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
 
-                    # result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
-                    with open(infoFile) as info:
-                        info = info.read()
-                        baseFromPattern = re.compile('"conversion_nuc_from": "(.)"')
-                        baseToPattern = re.compile('"conversion_nuc_to": "(.)"')
-                        baseFrom = baseFromPattern.findall(info)[0].upper()
-                        baseTo = baseToPattern.findall(info)[0].upper()
-                        sgPattern = re.compile('Selected_nucleotide_frequency_table_around_sgRNA_.*?\.txt?')
-                        sgFile = sgPattern.search(info).group()
+                        with open(infoFile) as info:
+                            info = info.read()
+                            baseFromPattern = re.compile('"conversion_nuc_from": "(.)"')
+                            baseToPattern = re.compile('"conversion_nuc_to": "(.)"')
+                            baseFrom = baseFromPattern.findall(info)[0].upper()
+                            baseTo = baseToPattern.findall(info)[0].upper()
+                            sgPattern = re.compile('Selected_nucleotide_frequency_table_around_sgRNA_.*?\.txt?')
+                            sgFile = sgPattern.search(info).group()
 
-                        result.loc[name, "原始碱基"] = baseFrom.upper()
-                        result.loc[name, "修改后碱基"] = baseTo.upper()
+                            result.loc[name, "原始碱基"] = baseFrom.upper()
+                            result.loc[name, "修改后碱基"] = baseTo.upper()
 
-                        # result.loc[name,"时间"] = ex_time
+                            # result.loc[name,"时间"] = ex_time
 
-                    editTable = pd.read_csv(resultDir + "/" + folder + "/" + sgFile, sep="\t")
+                        editTable = pd.read_csv(resultDir + "/" + folder + "/" + sgFile, sep="\t")
 
-                    for location in editTable.columns:
-                        if "Unn" in location:
-                            # print("Fuck " + location)
-                            pass
-                        else:
-                            editLocation = str(location[1:])
-                            # print(editTable)
-                            # print(editLocation)
-                            # input()
+                        for location in editTable.columns:
+                            if "Unn" in location:
+                                # print("Fuck " + location)
+                                pass
+                            else:
+                                editLocation = str(location[1:])
+                                # print(editTable)
+                                # print(editLocation)
+                                # input()
+                                baseReads = {}
+                                baseReads["A"] = int(editTable.loc[0, location])
+                                baseReads["C"] = int(editTable.loc[1, location])
+                                baseReads["G"] = int(editTable.loc[2, location])
+                                baseReads["T"] = int(editTable.loc[3, location])
+                                baseReads["N"] = int(editTable.loc[4, location])
+                                baseReads["-"] = int(editTable.loc[5, location])
+                                allReads = sum(baseReads.values())
+
+                                editReads = "%.2f%%" % (float(baseReads[baseTo] / allReads) * 100)
+                                # unspecificEditReads = "%.2f%%" % (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
+                                # uneditReads = "%.2f%%" % (( baseReads[baseFrom] /allReads)*100)
+
+                                result.loc[name, str(editLocation)] = editReads
+                                # print(editReads)
+                                result.loc[name, "测序深度"] = allReads
+
+                                if str(int(editLocation)) == desire_position:
+                                    result.loc[name, "最想看的位置的效率"] = editReads
+
+                                # result.loc[name,"n" + editLocation] = unspecificEditReads
+
+                        subTable = pd.read_csv(subsitutionFile, sep="\t")
+
+                        # print(allReads)
+                        n = 0
+                        for base in subTable.columns:
+
                             baseReads = {}
-                            baseReads["A"] = int(editTable.loc[0, location])
-                            baseReads["C"] = int(editTable.loc[1, location])
-                            baseReads["G"] = int(editTable.loc[2, location])
-                            baseReads["T"] = int(editTable.loc[3, location])
-                            baseReads["N"] = int(editTable.loc[4, location])
-                            baseReads["-"] = int(editTable.loc[5, location])
-                            allReads = sum(baseReads.values())
-
-                            editReads = "%.2f%%" % (float(baseReads[baseTo] / allReads) * 100)
-                            # unspecificEditReads = "%.2f%%" % (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
-                            # uneditReads = "%.2f%%" % (( baseReads[baseFrom] /allReads)*100)
-
-                            result.loc[name, str(editLocation)] = editReads
-                            # print(editReads)
-                            result.loc[name, "测序深度"] = allReads
-
-                            if str(int(editLocation)) == desire_position:
-                                result.loc[name, "最想看的位置的效率"] = editReads
-
-                            # result.loc[name,"n" + editLocation] = unspecificEditReads
-
-                    subTable = pd.read_csv(subsitutionFile, sep="\t")
-
-                    # print(allReads)
-                    n = 0
-                    for base in subTable.columns:
-
-                        baseReads = {}
-                        # print(subTable.iloc[0,n])
-                        try:
-                            baseReads["A"] = subTable.iloc[0, n + 1]
-                            baseReads["C"] = subTable.iloc[1, n + 1]
-                            baseReads["G"] = subTable.iloc[2, n + 1]
-                            baseReads["T"] = subTable.iloc[3, n + 1]
-                            baseReads["N"] = subTable.iloc[4, n + 1]
-                            allSubReads = sum(baseReads.values())
-                            # print(name , allReads)
-                            # print(name, baseReads[baseFrom],baseReads[baseTo])
-                            unspecificEditReads = "%.2f%%" % (
-                                        float((allSubReads - baseReads[baseFrom] - baseReads[baseTo]) / allReads) * 100)
-                            # unspecificEditReads =  (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
-                            result.loc[name, "u" + str(n + 1)] = unspecificEditReads
-                            n = n + 1
-                        except:
-                            n = n + 1
-                            pass
+                            # print(subTable.iloc[0,n])
+                            try:
+                                baseReads["A"] = subTable.iloc[0, n + 1]
+                                baseReads["C"] = subTable.iloc[1, n + 1]
+                                baseReads["G"] = subTable.iloc[2, n + 1]
+                                baseReads["T"] = subTable.iloc[3, n + 1]
+                                baseReads["N"] = subTable.iloc[4, n + 1]
+                                allSubReads = sum(baseReads.values())
+                                # print(name , allReads)
+                                # print(name, baseReads[baseFrom],baseReads[baseTo])
+                                unspecificEditReads = "%.2f%%" % (
+                                            float((allSubReads - baseReads[baseFrom] - baseReads[baseTo]) / allReads) * 100)
+                                # unspecificEditReads =  (float((allReads - baseReads[baseFrom] - baseReads[baseTo]) /allReads)*100)
+                                result.loc[name, "u" + str(n + 1)] = unspecificEditReads
+                                n = n + 1
+                            except:
+                                n = n + 1
+                                pass
+            except Exception as e:
+                print(e)
+                continue
 
         self.time1 = str(time.ctime())
         result.to_excel(output_path + "/结果汇总.xlsx")

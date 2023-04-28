@@ -147,7 +147,7 @@ class Ui_CRISPResso(object):
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.groupBox_status)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
         self.progressBar = QtWidgets.QProgressBar(self.groupBox_status)
-        self.progressBar.setProperty("value", 24)
+        self.progressBar.setProperty("value", 0)
         self.progressBar.setObjectName("progressBar")
         self.horizontalLayout_4.addWidget(self.progressBar)
         self.pushButton_stop = QtWidgets.QPushButton(self.groupBox_status)
@@ -230,7 +230,7 @@ class Ui_CRISPResso(object):
         self.pushButton_generateFq.setText(_translate("CRISPResso", "开始"))
         self.groupBox_status.setTitle(_translate("CRISPResso", "正在运行，别急，先做实验吧"))
         self.progressBar.setFormat(_translate("CRISPResso", "%v / %m"))
-        self.pushButton_stop.setText(_translate("CRISPResso", "停止"))
+        self.pushButton_stop.setText(_translate("CRISPResso", "终止并生成报告"))
         self.pushButton_openFqDir.setText(_translate("CRISPResso", "打开结果文件夹"))
         self.label.setText(_translate("CRISPResso", "当前选定："))
 from plaintextedit import PlainTextEdit

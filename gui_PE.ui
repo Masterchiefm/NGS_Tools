@@ -328,7 +328,7 @@
              <number>100</number>
             </property>
             <property name="value">
-             <number>10</number>
+             <number>0</number>
             </property>
             <property name="format">
              <string>%v / %m</string>
@@ -338,7 +338,7 @@
           <item>
            <widget class="QPushButton" name="pushButton_stop">
             <property name="text">
-             <string>停止</string>
+             <string>终止并生成报告</string>
             </property>
            </widget>
           </item>

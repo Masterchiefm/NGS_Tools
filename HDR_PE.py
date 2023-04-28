@@ -8,9 +8,8 @@ import pandas as pd
 from gui_PE import Ui_CRISPResso
 import subprocess
 import requests
-from background_task import bgThread
-import background_task
-import webbrowser
+from background_task import lyricThread, bgCRISPResso
+
 
 # DNA序列工具
 def reverseDNA(dna):
@@ -93,7 +92,12 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.groupBox_status.setVisible(False)
         self.pushButton_stop.clicked.connect(self.stopTread)
 
-        self.pushButton_stop.setVisible(False)
+        # self.pushButton_stop.setVisible(False)
+        # update lyric
+        self.lyricThread = lyricThread()
+        self.lyricThread.updated.connect(self.updateLyric)
+
+
 
         # 按键区域
         self.pushButton_install.clicked.connect(self.installDependence)
@@ -112,14 +116,21 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             self.pushButton_install.setVisible(True)
 
     def stopTread(self):
+        self.lyricThread.terminate()
         self.thread.terminate()
-        self.monitor.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
-        QMessageBox.about(self, "停止", "已停止.")
+        self.summarize()
+        self.progressBar.setValue(0)
+        QMessageBox.about(self, "停止",
+                          "已停止，目前已经分析的部分样品将会被汇总。\n\n 在停止的这个瞬间，后台尚有数个样品正在分析，可能会稍微多占用几分钟电脑资源，无需理会即可。")
+
+    def updateLyric(self,lyric):
+        self.label.setText(lyric)
 
     # 功能区
     def start(self):
+        self.lyricThread.start()
         if self.plainTextEdit_readIllumina.toPlainText() == "":
             QMessageBox.about(self, "Fastq folder not set", "ERROR:\n必须指定fastq文件所在的文件夹！")
             return 0
@@ -223,27 +234,22 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         # info = os.system("bash ./.run.sh")
         self.ref = ref
         self.time0 = str(time.ctime())
-        # info = os.system("bash ./.run.sh")
-        task_id = str(background_task.getUid())
-        self.thread = bgThread(task_id)
+        self.progressBar.setRange(0, task_sum)
+        self.groupBox_status.setVisible(True)
+        self.pushButton_generateFq.setEnabled(False)
+        self.thread = bgCRISPResso(uid="", cmdList=cmdList)
+        self.thread.updated.connect(self.updateStatus)
         self.thread.finished.connect(self.summarize)
         self.thread.start()
 
-        self.monitor = background_task.monitorThread(task_id)
-        self.progressBar.setRange(0, task_sum)
-        self.monitor.start()
-        self.monitor.updated.connect(self.updateStatus)
-
-        self.groupBox_status.setVisible(True)
-        self.pushButton_generateFq.setEnabled(False)
-
-    def updateStatus(self,status):
-        self.progressBar.setValue(int(status))
-
+    def updateStatus(self, num):
+        current_value = int(self.progressBar.value())
+        self.progressBar.setValue(int(current_value + num))
 
     def summarize(self):
         # 数据汇总
-        self.monitor.terminate()
+        # self.monitor.terminate()
+        self.lyricThread.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
 
@@ -293,87 +299,91 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 continue  # 跳过循环，下一个样品
 
             # 日志存在，继续进行分析。打开日志文件，读取信息
-            with open(logFile) as log:
-                o = log.read()
-                if "ERROR" in o:  # 分析过程中出错，一般为reads数为0才出错。其次是分析窗口超出范围。
-                    errorResults.append(name)
-                    result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
-                    for line in o.splitlines():
-                        if "ERROR" in line:
-                            print(name + line)
-                    continue
-                else:
-                    # 1. 解压、读取分析结果文件
-                    allelesFrequencyTableZip = zipfile.ZipFile(allelesFrequencyTable)
-                    allelesData = allelesFrequencyTableZip.read('Alleles_frequency_table.txt')
-                    allelesFrequencyTableZip.extractall(resultDir + "/" + folder + "/")
-
-                    # 2. 逐条进行判断是否为ambiguous Indel
-                    ambiguousIndel = 0
-                    allelesFrequencyTable = pd.read_csv(resultDir + "/" + folder + "/Alleles_frequency_table.txt",
-                                                        sep='\t')
-                    for i in allelesFrequencyTable.index:
-                        if allelesFrequencyTable.loc[i, "Reference_Name"] == "AMBIGUOUS_Reference":
-                            if allelesFrequencyTable.loc[i, "n_deleted"] + allelesFrequencyTable.loc[
-                                i, "n_deleted"] > 0:
-                                reads = allelesFrequencyTable.loc[i, "#Reads"]
-                                ambiguousIndel = ambiguousIndel + reads
-
-                    # 3. 读取非ambiguous 序列的indel数据
-                    resultFrame = pd.read_csv(resultFile, sep='\t')
-                    # print(ambiguousIndel)
-                    HDR_unmodified = resultFrame.loc[1, 'Unmodified']
-                    allHDR = resultFrame.loc[1, 'Reads_aligned']
-                    HDR_modified = resultFrame.loc[1, 'Modified']
-                    reads_aligned = resultFrame.loc[1, 'Reads_aligned_all_amplicons']
-                    reads = resultFrame.loc[1, 'Reads_in_input']
-                    NHEJreads = resultFrame.loc[0, "Modified"]
-                    insertion = int(resultFrame.loc[0, "Insertions"]) + int(resultFrame.loc[1, "Insertions"])
-                    deletion = int(resultFrame.loc[0, "Deletions"]) + int(resultFrame.loc[1, "Deletions"])
-                    insertionAndDeletion = int(resultFrame.loc[0, "Insertions and Deletions"]) + int(
-                        resultFrame.loc[1, "Insertions and Deletions"])
-
-                    substitution = int(resultFrame.loc[0, "Substitutions"]) + int(resultFrame.loc[1, "Substitutions"])
-                    HDR_insertion = resultFrame.loc[0, "Insertions"]
-
-                    # 4. 测序深度过滤
-                    if reads_aligned < 1500:
+            try:
+                with open(logFile) as log:
+                    o = log.read()
+                    if "ERROR" in o:  # 分析过程中出错，一般为reads数为0才出错。其次是分析窗口超出范围。
+                        errorResults.append(name)
                         result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
-                        print(name, "reads 过少")
-                        n = n + 1
+                        for line in o.splitlines():
+                            if "ERROR" in line:
+                                print(name + line)
                         continue
+                    else:
+                        # 1. 解压、读取分析结果文件
+                        allelesFrequencyTableZip = zipfile.ZipFile(allelesFrequencyTable)
+                        allelesData = allelesFrequencyTableZip.read('Alleles_frequency_table.txt')
+                        allelesFrequencyTableZip.extractall(resultDir + "/" + folder + "/")
 
-                    result.loc[name, "总读数"] = reads
-                    result.loc[name, "实际使用读数"] = reads_aligned
+                        # 2. 逐条进行判断是否为ambiguous Indel
+                        ambiguousIndel = 0
+                        allelesFrequencyTable = pd.read_csv(resultDir + "/" + folder + "/Alleles_frequency_table.txt",
+                                                            sep='\t')
+                        for i in allelesFrequencyTable.index:
+                            if allelesFrequencyTable.loc[i, "Reference_Name"] == "AMBIGUOUS_Reference":
+                                if allelesFrequencyTable.loc[i, "n_deleted"] + allelesFrequencyTable.loc[
+                                    i, "n_deleted"] > 0:
+                                    reads = allelesFrequencyTable.loc[i, "#Reads"]
+                                    ambiguousIndel = ambiguousIndel + reads
 
-                    try:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (float(0))
+                        # 3. 读取非ambiguous 序列的indel数据
+                        resultFrame = pd.read_csv(resultFile, sep='\t')
+                        # print(ambiguousIndel)
+                        HDR_unmodified = resultFrame.loc[1, 'Unmodified']
+                        allHDR = resultFrame.loc[1, 'Reads_aligned']
+                        HDR_modified = resultFrame.loc[1, 'Modified']
+                        reads_aligned = resultFrame.loc[1, 'Reads_aligned_all_amplicons']
+                        reads = resultFrame.loc[1, 'Reads_in_input']
+                        NHEJreads = resultFrame.loc[0, "Modified"]
+                        insertion = int(resultFrame.loc[0, "Insertions"]) + int(resultFrame.loc[1, "Insertions"])
+                        deletion = int(resultFrame.loc[0, "Deletions"]) + int(resultFrame.loc[1, "Deletions"])
+                        insertionAndDeletion = int(resultFrame.loc[0, "Insertions and Deletions"]) + int(
+                            resultFrame.loc[1, "Insertions and Deletions"])
 
-                    try:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (
-                                    float(HDR_unmodified) / float(allHDR) * 100)
-                    except:
-                        result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (float(0) * 100)
+                        substitution = int(resultFrame.loc[0, "Substitutions"]) + int(resultFrame.loc[1, "Substitutions"])
+                        HDR_insertion = resultFrame.loc[0, "Insertions"]
 
-                    try:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (
-                                    float(NHEJreads) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (float(0) * 100)
+                        # 4. 测序深度过滤
+                        if reads_aligned < 1500:
+                            result.loc[name, "正确编辑占总体的比例"] = "No enough reads"
+                            print(name, "reads 过少")
+                            n = n + 1
+                            continue
 
-                    # try:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion)) / float(reads_aligned)*100)
-                    # except:
-                    #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
+                        result.loc[name, "总读数"] = reads
+                        result.loc[name, "实际使用读数"] = reads_aligned
 
-                    try:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion) + float(
-                            ambiguousIndel) - insertionAndDeletion) / float(reads_aligned) * 100)
-                    except:
-                        result.loc[name, "Indel占总体比例"] = "%.2f%%" % (float(0) * 100)
+                        try:
+                            result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (
+                                        float(HDR_unmodified) / float(reads_aligned) * 100)
+                        except:
+                            result.loc[name, "正确编辑占总体的比例"] = "%.2f%%" % (float(0))
+
+                        try:
+                            result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (
+                                        float(HDR_unmodified) / float(allHDR) * 100)
+                        except:
+                            result.loc[name, "正确编辑占总编辑的比例"] = "%.2f%%" % (float(0) * 100)
+
+                        try:
+                            result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (
+                                        float(NHEJreads) / float(reads_aligned) * 100)
+                        except:
+                            result.loc[name, "NHEJ占总体体比例"] = "%.2f%%" % (float(0) * 100)
+
+                        # try:
+                        #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion)) / float(reads_aligned)*100)
+                        # except:
+                        #    result.loc[name,"Indel占总体比例"] = "%.2f%%" % (float(0)*100)
+
+                        try:
+                            result.loc[name, "Indel占总体比例"] = "%.2f%%" % ((float(insertion) + float(deletion) + float(
+                                ambiguousIndel) - insertionAndDeletion) / float(reads_aligned) * 100)
+                        except:
+                            result.loc[name, "Indel占总体比例"] = "%.2f%%" % (float(0) * 100)
+            except Exception as e:
+                print(e)
+                continue
 
         time1 = str(time.ctime())
         result.loc[

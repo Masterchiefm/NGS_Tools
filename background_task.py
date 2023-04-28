@@ -4,6 +4,7 @@ import time
 import uuid
 from PyQt5.QtCore import QThread, pyqtSignal
 import os
+import requests
 
 def getUid():
     uid = uuid.uuid4()
@@ -30,40 +31,100 @@ class bgThread(QThread):
         self.bgTask()
 
 
-class monitorThread(QThread):
+class bgCRISPResso(QThread):
     finished = pyqtSignal(str)
     updated = pyqtSignal(int)
     uid = ""
-
-    def __init__(self,uid = "sdf"):
+    def __init__(self,uid = "sdf",cmdList = []):
         self.uid = uid
-        super(monitorThread,self).__init__()
+        self.cmd_list = cmdList
+        super(bgCRISPResso,self).__init__()
+
+    def bgTask(self):
+        header = "#!/bin/bash\n source ~/miniconda3/bin/activate base  \n" # bash文件头
+        authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
+                        # Script Author:\tMo Qiqin
+                        # Contact:\tmoqq@shanghaitech.edu.cn\n
+                        echo a >> log
+                        uid=$1
+                       
+                        """
+
+        bashData = [header,authorInfo]
+        # bashData0 = list(bashData)
+        max_thread = int(os.cpu_count())
+        counter = 0
+        # i=0
+        for task in self.cmd_list:
+            # i=i+1
+            CMD = "{\n" + task + " \n}&\n" + "\n clear \n"
+            bashData.append(CMD)
+            counter = counter + 1
+            if counter == max_thread:
+                bashData.append("\nwait\n")
+                counter = 0
+
+                a = "".join(bashData)
+                with open(".run.sh", "w") as f:
+                    f.write(a)
+                os.system("bash ./.run.sh" )
 
 
+                # 运行结束删除内容
+                bashData = [header,authorInfo]
+                os.system('rm -rf ./.run.sh')
 
-    def monitor(self):
-        '''统计完成的文件数，从而获取进度'''
-        self.task_count_path = "/tmp/" + self.uid
-        path = self.task_count_path
-        try:
-            finnished_task = os.listdir(path)
-            finnished_num = len(finnished_task)
-        except:
-            return 0
-        return finnished_num
+                self.updated.emit(max_thread)
+
+        # for 循环结束但是没有完成最后的剩余任务：
+
+        bashData.append("\nwait\n")
+        a = "".join(bashData)
+        with open(".run.sh", "w") as f:
+            f.write(a)
+        os.system("bash ./.run.sh" )
+        os.system("rm -rf ./.run.sh")
+        self.finished.emit("done")
 
     def run(self) -> None:
-        finnished_sum = 0
-        print("sdfsdafdsaf " + self.uid)
+        self.bgTask()
+
+
+
+class lyricThread(QThread):
+    updated = pyqtSignal(str)
+
+
+    def __init__(self):
+        super(lyricThread,self).__init__()
+
+    def getLyric(self):
+        try:
+            url2 = 'https://v1.jinrishici.com/all'
+            lyric = requests.get(url2, timeout=1).json()
+            content = lyric['content']
+            try:
+                origin = lyric['origin']
+            except:
+                origin = "Unknown"
+            try:
+                author = lyric['author']
+            except:
+                author = "Unknown"
+
+            output = content + "\n\t\t\t" + "——《" + origin + "》\t" + author
+            return output
+        except Exception as e:
+            print(e)
+            output = "扩增子测序分析" + "\n\t\t\t" + "——Written by M.Q. at ShanghaiTech University"
+            return output
+
+    def run(self) -> None:
         while True:
-            current_sum = int(self.monitor())
-            if finnished_sum != current_sum:
-                finnished_sum = current_sum
-                self.updated.emit(finnished_sum)
-                print(finnished_sum)
-            else:
-                print("on going..." + str(current_sum))
-            time.sleep(0.5)
+            time.sleep(10)
+            lyric = self.getLyric()
+            self.updated.emit(lyric)
+
 
 
 class bgThread2(QThread):

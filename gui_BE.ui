@@ -344,7 +344,7 @@
           <item>
            <widget class="QPushButton" name="pushButton_stop">
             <property name="text">
-             <string>终止</string>
+             <string>终止并生成报告</string>
             </property>
            </widget>
           </item>
