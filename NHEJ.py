@@ -91,7 +91,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.groupBox_status.setVisible(False)
         self.pushButton_stop.clicked.connect(self.stopTread)
 
-        # self.pushButton_stop.setVisible(False)
+        self.pushButton_stop.setVisible(False)
         # update lyric
         self.lyricThread = lyricThread()
         self.lyricThread.updated.connect(self.updateLyric)
@@ -157,7 +157,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         mkdir /tmp/${uid}
         """
         bashData.append(authorInfo)
-        thread = int(os.cpu_count())
+        thread = int(os.cpu_count() *2)
         if thread < 8:
             thread = 8
         counter = 0
@@ -232,21 +232,27 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         # info = os.system("bash ./.run.sh")
         self.ref = ref
         self.time0 = str(time.ctime())
-        self.progressBar.setRange(0, task_sum)
+        self.progressBar.setRange(0, 0)
+        self.progressBar.setValue(0)
         self.groupBox_status.setVisible(True)
         self.pushButton_generateFq.setEnabled(False)
-        self.thread = bgCRISPResso(uid="", cmdList=cmdList)
+        # self.thread = bgCRISPResso(uid="", cmdList=cmdList)
+        from background_task import bgCRISPResso2
+        self.thread = bgCRISPResso2(cmdList=cmdList)
         self.thread.updated.connect(self.updateStatus)
         self.thread.finished.connect(self.summarize)
         self.thread.start()
+        self.task_sum = task_sum
 
     def updateStatus(self,num):
+        self.progressBar.setRange(0, self.task_sum)
         current_value = int(self.progressBar.value())
         self.progressBar.setValue(int(current_value + num))
 
     def summarize(self):
         # 汇总结果
         # self.monitor.terminate()
+        self.progressBar.setValue(0)
         self.lyricThread.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)

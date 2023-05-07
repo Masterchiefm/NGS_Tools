@@ -45,14 +45,14 @@ class bgCRISPResso(QThread):
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
                         # Script Author:\tMo Qiqin
                         # Contact:\tmoqq@shanghaitech.edu.cn\n
-                        echo a >> log
+                        
                         uid=$1
                        
                         """
 
         bashData = [header,authorInfo]
         # bashData0 = list(bashData)
-        max_thread = int(os.cpu_count())
+        max_thread = int(os.cpu_count()) * 2
         counter = 0
         # i=0
         for task in self.cmd_list:
@@ -90,6 +90,83 @@ class bgCRISPResso(QThread):
         self.bgTask()
 
 
+class bgCRISPResso2(QThread):
+    finished = pyqtSignal(str)
+    updated = pyqtSignal(int)
+    uid = ""
+
+    def __init__(self, uid="sdf", cmdList=[]):
+        self.uid = uid
+        self.cmd_list = cmdList
+        self.waitting = self.cmd_list.copy()
+        self.running = []
+        self.finished_tasks =[]
+
+        super(bgCRISPResso2, self).__init__()
+
+
+    def update(self,i):
+        self.running.remove(i)
+        self.waitting.remove(i)
+        self.finished_tasks.append(i)
+        self.updated.emit(1)
+
+
+    def terminate(self) -> None:
+        self.waitting = []
+        self.running = []
+        self.cmd_list = []
+        for i in self.tasks:
+            i.terminate()
+        super(bgCRISPResso2, self).terminate()
+
+
+    def bgTask(self):
+        # bashData0 = list(bashData)
+        max_thread = int(os.cpu_count())
+        self.tasks = []
+
+        while True:
+            # 判断队列是否满了
+            if len(self.running) <= max_thread:
+                for i in self.cmd_list:
+                    # 判断任务是否已经运行过了
+                    if i in self.running:
+                        pass
+                    elif i in self.finished_tasks:
+                        pass
+                    else: # 任务未运行过
+                        if len(self.running) <= max_thread:
+                            locals()["task_"+str(i)] = bgRun(i)
+                            self.running.append(i)
+                            locals()["task_" + str(i)].start()
+                            locals()["task_" + str(i)].finished.connect(self.update)
+                            self.tasks.append(locals()["task_"+str(i)])
+
+
+            if len(self.waitting) == 0:
+                self.finished.emit('')
+                return
+
+
+
+
+    def run(self) -> None:
+        self.bgTask()
+
+class bgRun(QThread):
+    started = pyqtSignal(str)
+    finished = pyqtSignal(str)
+
+    def __init__(self,cmd="sdf"):
+        self.cmd = cmd
+
+        super(bgRun, self).__init__()
+
+    def run(self) -> None:
+        # self.started.emit(self.cmd)
+        os.system("~/miniconda3/bin/conda run " + self.cmd)
+        self.finished.emit(self.cmd)
 
 class lyricThread(QThread):
     updated = pyqtSignal(str)
@@ -126,61 +203,6 @@ class lyricThread(QThread):
             self.updated.emit(lyric)
 
 
-
-class bgThread2(QThread):
-    finished = pyqtSignal(str)
-    updated = pyqtSignal(int)
-    uid = ""
-    running_pool = []
-    finished_pool = []
-
-    def __init__(self, task_list = []):
-        self.task_list = task_list
-        super(bgThread2, self).__init__()
-
-    def runTask(self,  task, thread = 12):
-        # task = bgThread()
-
-        # 判断线程是否满了
-        if len(self.running_pool) >= thread:
-            status = "wait"
-            print("thread is full!")
-        else:
-            status = "added"
-            task.start()
-            self.running_pool.append(task)
-
-        # 检查线程池中是否有完成的，若有，踢出到完成列表中。
-        tasks_to_be_pop = []
-        id = 0
-        for task in self.running_pool:
-            is_finished = task.isFinished()
-            print("finished=" + str(is_finished))
-            if is_finished:
-                tasks_to_be_pop.append(id)
-
-            id = id + 1
-
-        for id in tasks_to_be_pop:
-            self.finished_pool.append(self.running_pool.pop(id))
-            print("pop out " + str(id))
-        print(len(self.running_pool))
-        return status
-
-
-    def run(self) -> None:
-        task_list = self.task_list
-        for task in task_list:
-            status = self.runTask(task)
-            print(status)
-            while status == "wait":
-                print(status)
-                time.sleep(1)
-                status = self.runTask(task)
-
-                print("exit + " + status)
-
-        print("add completed")
 
 
 

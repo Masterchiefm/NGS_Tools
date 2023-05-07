@@ -92,7 +92,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_del_lines.clicked.connect(self.delLine)
         self.groupBox_status.setVisible(False)
 
-        # self.pushButton_stop.setVisible(False)
+        self.pushButton_stop.setVisible(False)
 
         # update lyric
         self.lyricThread = lyricThread()
@@ -119,11 +119,19 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def stopTread(self):
         self.lyricThread.terminate()
+        print("send stop signal")
         self.thread.terminate()
-        self.groupBox_status.setVisible(False)
-        self.pushButton_generateFq.setEnabled(True)
+        self.thread.quit()
+        print("stopped 1")
+
+        print("stopped 3")
         self.summarize()
+        print("stopped 4")
+        self.groupBox_status.setVisible(False)
+        print("stopped 2")
+        self.pushButton_generateFq.setEnabled(True)
         self.progressBar.setValue(0)
+        print("stopped 5")
         QMessageBox.about(self, "停止", "已停止，目前已经分析的部分样品将会被汇总。\n\n 在停止的这个瞬间，后台尚有数个样品正在分析，可能会稍微多占用几分钟电脑资源，无需理会即可。")
 
 
@@ -179,7 +187,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 mkdir /tmp/${uid}
                 """
         bashData.append(authorInfo)
-        thread = int(os.cpu_count())
+        thread = int(os.cpu_count() * 2)
         if thread < 8:
             thread = 8
 
@@ -270,16 +278,21 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
         # 正式开始分析
         self.time0 = str(time.ctime())
-        self.progressBar.setRange(0, task_sum)
+        self.progressBar.setRange(0, 0)
+        self.task_sum = task_sum
+        self.progressBar.setValue(0)
         self.groupBox_status.setVisible(True)
         self.pushButton_generateFq.setEnabled(False)
-        self.thread = bgCRISPResso(uid="",cmdList=cmdList)
+        # self.thread = bgCRISPResso(uid="",cmdList=cmdList)
+        from background_task import bgCRISPResso2
+        self.thread = bgCRISPResso2(cmdList=cmdList)
         self.thread.updated.connect(self.updateStatus)
         self.thread.finished.connect(self.summarize)
         self.thread.start()
 
 
     def updateStatus(self,num):
+        self.progressBar.setRange(0, self.task_sum)
         current_value = int(self.progressBar.value())
         self.progressBar.setValue(int(current_value + num))
 
@@ -288,6 +301,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
     def summarize(self):
         # 汇总结果
         # self.monitor.terminate()
+        self.progressBar.setValue(0)
         self.lyricThread.terminate()
         self.groupBox_status.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)

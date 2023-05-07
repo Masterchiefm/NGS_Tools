@@ -10,13 +10,14 @@ import BE
 import NHEJ
 import demultiplex
 import qdarktheme
+import random
 
 
 class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
         self.setupUi(self)
-        self.version = "1.4.2"
+        self.version = "1.5.0"
         self.setWindowTitle(self.windowTitle() + " v"+self.version)
         self.checkUpdate()
 
@@ -71,7 +72,9 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
         screen = QDesktopWidget()
         screen_size = screen.screenGeometry()
         size = self.geometry()
-        self.move(int((screen_size.width()-size.width())/2), int((screen_size.height()-size.height())/2))
+        offset = int(random.randint(40,80)) * int(random.randint(-2,2))
+        offset2 = int(random.randint(40,80)) * int(random.randint(-2,2))
+        self.move(offset + int((screen_size.width()-size.width())/2), offset2 + int((screen_size.height()-size.height())/2))
 
     def startBCL(self):
         self.subwin_bcl = bcl2fastq.MyMainWin()
