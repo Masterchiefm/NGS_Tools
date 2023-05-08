@@ -113,7 +113,7 @@ if __name__ == "__main__":
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
     qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("auto")
+    qdarktheme.setup_theme("dark")
     # app.installTranslator(trans)
     win = MyMainWin()
     win.show()

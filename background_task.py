@@ -120,10 +120,42 @@ class bgCRISPResso2(QThread):
             i.terminate()
         super(bgCRISPResso2, self).terminate()
 
+    def freeMem(self):
+        try:
+            with open('/proc/meminfo') as fd:
+
+                for line in fd:
+
+                    if line.startswith('MemTotal'):
+                        total = line.split()[1]
+
+                        continue
+
+                    if line.startswith('MemFree'):
+                        free = line.split()[1]
+
+                        break
+
+            FreeMem = int(free) / 1024.0
+
+            TotalMem = int(total) / 1024.0
+
+            print("FreeMem:" + "%.2f" % FreeMem + 'M')
+
+            print("TotalMem:" + "%.2f" % TotalMem + 'M')
+
+            print("FreeMem/TotalMem:" + "%.2f" % ((FreeMem / TotalMem) * 100) + '%')
+            free = (FreeMem / TotalMem)
+        except:
+            print("无法获取内存使用信息!")
+            free = 0.8
+        return free
+
 
     def bgTask(self):
         # bashData0 = list(bashData)
-        max_thread = int(os.cpu_count())
+        max_thread = int(os.cpu_count() * 1.5)
+        # max_thread = 80
         self.tasks = []
 
         while True:
@@ -136,12 +168,18 @@ class bgCRISPResso2(QThread):
                     elif i in self.finished_tasks:
                         pass
                     else: # 任务未运行过
-                        if len(self.running) <= max_thread:
-                            locals()["task_"+str(i)] = bgRun(i)
-                            self.running.append(i)
-                            locals()["task_" + str(i)].start()
-                            locals()["task_" + str(i)].finished.connect(self.update)
-                            self.tasks.append(locals()["task_"+str(i)])
+
+                        #判断内存没爆炸
+                        memory = self.freeMem()
+                        if memory > 0.9:
+                            pass
+                        else:
+                            if len(self.running) <= max_thread:
+                                locals()["task_"+str(i)] = bgRun(i)
+                                self.running.append(i)
+                                locals()["task_" + str(i)].start()
+                                locals()["task_" + str(i)].finished.connect(self.update)
+                                self.tasks.append(locals()["task_"+str(i)])
 
 
             if len(self.waitting) == 0:
