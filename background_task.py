@@ -155,7 +155,7 @@ class bgCRISPResso2(QThread):
     def bgTask(self):
         # bashData0 = list(bashData)
         max_thread = int(os.cpu_count() * 1.5)
-        # max_thread = 80
+        max_thread = 80
         self.tasks = []
 
         while True:
@@ -171,7 +171,7 @@ class bgCRISPResso2(QThread):
 
                         #判断内存没爆炸
                         memory = self.freeMem()
-                        if memory > 0.9:
+                        if memory < 0.1:
                             pass
                         else:
                             if len(self.running) <= max_thread:
@@ -180,6 +180,7 @@ class bgCRISPResso2(QThread):
                                 locals()["task_" + str(i)].start()
                                 locals()["task_" + str(i)].finished.connect(self.update)
                                 self.tasks.append(locals()["task_"+str(i)])
+                                time.sleep(3)
 
 
             if len(self.waitting) == 0:
