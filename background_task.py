@@ -140,11 +140,11 @@ class bgCRISPResso2(QThread):
 
             TotalMem = int(total) / 1024.0
 
-            print("FreeMem:" + "%.2f" % FreeMem + 'M')
-
-            print("TotalMem:" + "%.2f" % TotalMem + 'M')
-
-            print("FreeMem/TotalMem:" + "%.2f" % ((FreeMem / TotalMem) * 100) + '%')
+            # print("FreeMem:" + "%.2f" % FreeMem + 'M')
+            #
+            # print("TotalMem:" + "%.2f" % TotalMem + 'M')
+            #
+            # print("FreeMem/TotalMem:" + "%.2f" % ((FreeMem / TotalMem) * 100) + '%')
             free = (FreeMem / TotalMem)
         except:
             print("无法获取内存使用信息!")
@@ -155,7 +155,7 @@ class bgCRISPResso2(QThread):
     def bgTask(self):
         # bashData0 = list(bashData)
         max_thread = int(os.cpu_count() * 1.5)
-        max_thread = 80
+        # max_thread = 80
         self.tasks = []
 
         while True:
@@ -170,17 +170,20 @@ class bgCRISPResso2(QThread):
                     else: # 任务未运行过
 
                         #判断内存没爆炸
-                        memory = self.freeMem()
-                        if memory < 0.1:
-                            pass
+                        free_memory = self.freeMem()
+                        if free_memory < 0.15:
+                            print("内存将满，暂停添加任务")
+                            time.sleep(5)
                         else:
+                            # print("剩余内存/总内存 = " + "%.2f" % (free_memory * 100) + '%')
                             if len(self.running) <= max_thread:
                                 locals()["task_"+str(i)] = bgRun(i)
                                 self.running.append(i)
                                 locals()["task_" + str(i)].start()
                                 locals()["task_" + str(i)].finished.connect(self.update)
                                 self.tasks.append(locals()["task_"+str(i)])
-                                time.sleep(3)
+                                time.sleep(1)
+
 
 
             if len(self.waitting) == 0:
