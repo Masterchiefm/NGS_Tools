@@ -154,7 +154,7 @@ class bgCRISPResso2(QThread):
 
     def bgTask(self):
         # bashData0 = list(bashData)
-        max_thread = int(os.cpu_count() * 1.5)
+        max_thread = int(os.cpu_count())
         # max_thread = 80
         self.tasks = []
 
@@ -170,19 +170,19 @@ class bgCRISPResso2(QThread):
                     else: # 任务未运行过
 
                         #判断内存没爆炸
-                        free_memory = self.freeMem()
-                        if free_memory < 0.15:
-                            print("内存将满，暂停添加任务")
-                            time.sleep(5)
-                        else:
-                            # print("剩余内存/总内存 = " + "%.2f" % (free_memory * 100) + '%')
-                            if len(self.running) <= max_thread:
-                                locals()["task_"+str(i)] = bgRun(i)
-                                self.running.append(i)
-                                locals()["task_" + str(i)].start()
-                                locals()["task_" + str(i)].finished.connect(self.update)
-                                self.tasks.append(locals()["task_"+str(i)])
-                                time.sleep(1)
+                        # free_memory = self.freeMem()
+                        # if free_memory < 0.15:
+                        #     print("内存将满，暂停添加任务")
+                        #     time.sleep(5)
+                        # else:
+                        # print("剩余内存/总内存 = " + "%.2f" % (free_memory * 100) + '%')
+                        if len(self.running) <= max_thread:
+                            locals()["task_"+str(i)] = bgRun(i)
+                            self.running.append(i)
+                            locals()["task_" + str(i)].start()
+                            locals()["task_" + str(i)].finished.connect(self.update)
+                            self.tasks.append(locals()["task_"+str(i)])
+                            time.sleep(0.1)
 
 
 
