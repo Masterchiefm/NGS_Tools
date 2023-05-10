@@ -21,8 +21,8 @@
 
 或者下载Virtual Box，在虚拟机里安装Ubuntu等系统来运行该程序也行。
 
-若使用Linux Subsystem for Windows(WSL)，请参[阅该指南](Windows_HELP/HELP_WIN.md)
-
+若使用Linux Subsystem for Windows(WSL)，请参[阅该指南](Windows_HELP/HELP_WIN.md) 进行配置，配置完成后**继续查看在Linux系统运行**
+的相关内容。
 
 
 ## 在Linux系统运行
