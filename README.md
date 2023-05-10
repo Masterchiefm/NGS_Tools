@@ -15,7 +15,17 @@
 3. 收集编辑数据，并汇总到excel表。
 4. 一键安装分析环境
 
-## 运行环境
+
+## 在Windows运行
+本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。
+
+或者下载Virtual Box，在虚拟机里安装Ubuntu等系统来运行该程序也行。
+
+若使用Linux Subsystem for Windows(WSL)，请参[阅该指南](Windows_HELP/HELP_WIN.md)
+
+
+
+## 在Linux系统运行
 系统要求：
 1. 必须安装中文系统，英文系统可能会有字符乱码。若遇到字符乱码，请自行为系统添加中文字体
 2. 使用以下任一个发行版均可
