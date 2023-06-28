@@ -17,7 +17,10 @@
 
 
 ## 在Windows运行
-本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。
+本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。很简单，按照这个视频就行: 
+
+[安装Linux子系统教程](https://b23.tv/WFs2DKI)
+
 
 或者下载Virtual Box，在虚拟机里安装Ubuntu等系统来运行该程序也行。
 
