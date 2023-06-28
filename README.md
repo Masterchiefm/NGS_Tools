@@ -17,15 +17,13 @@
 
 
 ## 在Windows运行
-本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。很简单，按照这个视频就行: 
-
-[安装Linux子系统教程](https://b23.tv/WFs2DKI)
-
+本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。
 
 或者下载Virtual Box，在虚拟机里安装Ubuntu等系统来运行该程序也行。
 
 若使用Linux Subsystem for Windows(WSL)，请参[阅该指南](Windows_HELP/HELP_WIN.md) 进行配置，配置完成后**继续查看在Linux系统运行**
-的相关内容。
+的相关内容。这个指南里有视频。
+
 
 
 ## 在Linux系统运行
