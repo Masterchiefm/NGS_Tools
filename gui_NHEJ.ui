@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1016</width>
-    <height>1195</height>
+    <height>1237</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -48,13 +48,53 @@
      </widget>
     </item>
     <item>
-     <widget class="QLabel" name="label_4">
-      <property name="text">
-       <string>文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！</string>
+     <widget class="QFrame" name="frame_4">
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
       </property>
-      <property name="wordWrap">
-       <bool>true</bool>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
       </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_5">
+       <item>
+        <widget class="QLabel" name="label_4">
+         <property name="text">
+          <string>文件路径不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，设置的分隔符是“_”，那么样品名就写第一个下划线_前的内容，即DS2-165。或者你可以把分隔副设为“_R”，程序也是直接识别测序文件名第一个&quot;_R&quot;之前的内容为样品名。这样程序就能自动根据样品名给你匹配fastq文件。&quot;描述&quot;一栏请尽量写详细，是给你自己看的！</string>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="maximumSize">
+          <size>
+           <width>150</width>
+           <height>16777215</height>
+          </size>
+         </property>
+         <property name="title">
+          <string>样品名分隔符</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <item>
+           <widget class="QLineEdit" name="lineEdit_split">
+            <property name="text">
+             <string>_</string>
+            </property>
+            <property name="clearButtonEnabled">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
      </widget>
     </item>
     <item>

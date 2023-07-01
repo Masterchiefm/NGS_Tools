@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_BE.ui'
+# Form implementation generated from reading ui file './gui_BE.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_CRISPResso(object):
     def setupUi(self, CRISPResso):
         CRISPResso.setObjectName("CRISPResso")
-        CRISPResso.resize(1343, 1195)
+        CRISPResso.resize(1343, 1237)
         self.centralwidget = QtWidgets.QWidget(CRISPResso)
         self.centralwidget.setObjectName("centralwidget")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.centralwidget)
@@ -32,10 +32,28 @@ class Ui_CRISPResso(object):
         self.pushButton_chooseFolder.setObjectName("pushButton_chooseFolder")
         self.horizontalLayout_2.addWidget(self.pushButton_chooseFolder)
         self.verticalLayout_3.addWidget(self.groupBox)
-        self.label_4 = QtWidgets.QLabel(self.centralwidget)
+        self.frame_4 = QtWidgets.QFrame(self.centralwidget)
+        self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_4.setObjectName("frame_4")
+        self.horizontalLayout_7 = QtWidgets.QHBoxLayout(self.frame_4)
+        self.horizontalLayout_7.setObjectName("horizontalLayout_7")
+        self.label_4 = QtWidgets.QLabel(self.frame_4)
         self.label_4.setWordWrap(True)
         self.label_4.setObjectName("label_4")
-        self.verticalLayout_3.addWidget(self.label_4)
+        self.horizontalLayout_7.addWidget(self.label_4)
+        self.groupBox_2 = QtWidgets.QGroupBox(self.frame_4)
+        self.groupBox_2.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.groupBox_2.setAlignment(QtCore.Qt.AlignCenter)
+        self.groupBox_2.setObjectName("groupBox_2")
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.groupBox_2)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.lineEdit_split = QtWidgets.QLineEdit(self.groupBox_2)
+        self.lineEdit_split.setClearButtonEnabled(True)
+        self.lineEdit_split.setObjectName("lineEdit_split")
+        self.horizontalLayout_6.addWidget(self.lineEdit_split)
+        self.horizontalLayout_7.addWidget(self.groupBox_2)
+        self.verticalLayout_3.addWidget(self.frame_4)
         self.groupBox_info = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_info.setInputMethodHints(QtCore.Qt.ImhPreferNumbers)
         self.groupBox_info.setFlat(False)
@@ -108,11 +126,11 @@ class Ui_CRISPResso(object):
         self.frame_2.setFrameShape(QtWidgets.QFrame.StyledPanel)
         self.frame_2.setFrameShadow(QtWidgets.QFrame.Raised)
         self.frame_2.setObjectName("frame_2")
-        self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.frame_2)
-        self.verticalLayout_2.setObjectName("verticalLayout_2")
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.frame_2)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
         self.label_selection = QtWidgets.QLabel(self.frame_2)
         self.label_selection.setObjectName("label_selection")
-        self.verticalLayout_2.addWidget(self.label_selection)
+        self.horizontalLayout_5.addWidget(self.label_selection)
         self.verticalLayout.addWidget(self.frame_2)
         self.frame_3 = QtWidgets.QFrame(self.groupBox_info)
         self.frame_3.setFrameShape(QtWidgets.QFrame.StyledPanel)
@@ -195,7 +213,9 @@ class Ui_CRISPResso(object):
         CRISPResso.setWindowTitle(_translate("CRISPResso", "BE分析"))
         self.groupBox.setTitle(_translate("CRISPResso", "fastq数据文件夹"))
         self.pushButton_chooseFolder.setText(_translate("CRISPResso", "选择文件夹"))
-        self.label_4.setText(_translate("CRISPResso", "文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！"))
+        self.label_4.setText(_translate("CRISPResso", "文件路径不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，设置的分隔符是“_”，那么样品名就写第一个下划线_前的内容，即DS2-165。或者你可以把分隔副设为“_R”，程序也是直接识别测序文件名第一个\"_R\"之前的内容为样品名这样程序就能自动根据样品名给你匹配fastq文件。“描述”一栏请尽量写详细，这个是给你自己看的！"))
+        self.groupBox_2.setTitle(_translate("CRISPResso", "样品名分隔符"))
+        self.lineEdit_split.setText(_translate("CRISPResso", "_"))
         self.groupBox_info.setTitle(_translate("CRISPResso", "基本信息"))
         self.checkBox_auto_fill_col.setText(_translate("CRISPResso", "自动向下填充"))
         item = self.tableWidget.verticalHeaderItem(0)

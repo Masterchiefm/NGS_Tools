@@ -211,8 +211,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             seqPair = []
 
             # 测序文件一一匹配
+            splitor = self.lineEdit_split.text().strip()
             for f in fileList:
-                seq_name = f.split("_")[0]
+                seq_name = f.split(splitor)[0]
                 if seq_name == sample:
                     seqPair.append(path + "/" + f)
 
@@ -228,11 +229,14 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                     r2 = seqPair[1]
                     self.newRef.loc[i, "测序文件2"] = os.path.basename(r2)
                 except:
-                    pass
+                    print("只有一个文件，为单端测序")
 
-                if len(seqPair) != 2:
+                if len(seqPair) > 2:
                     print(sample)
                     print(seqPair)
+                    QMessageBox.about(self, "Error",f"出错🌶\n\n 根据样品名在文件夹中找到多个文件：\n{seq_pairs}，\n\n请把非测序文件移出测序文件夹，或更改识别样品名模式。")
+                    return
+
             else:
                 print(sample + " not found")
                 log = log + (sample + " not found")
@@ -253,10 +257,17 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             center = str(int(len(sg) / 2))
             win = str(int((int(len(sg) / 2)) + len(sg)%2))
 
-            cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
-            r1, r2, amplicon, sg, baseFrom, baseTo)) + \
-                  parameter + " --quantification_window_center -" + center + " -w " + win + " --plot_window_size " + win + \
-                  " -o %s/%s" % (output_path, output_name)
+            if len(seqPair) == 1:
+                cmd = "CRISPResso  --base_editor_output  " + (
+                            " -r1 %s   -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
+                        r1, amplicon, sg, baseFrom, baseTo)) + \
+                      parameter + " --quantification_window_center -" + center + " -w " + win + " --plot_window_size " + win + \
+                      " -o %s/%s" % (output_path, output_name)
+            elif len(seqPair) == 2:
+                cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s  --conversion_nuc_from %s --conversion_nuc_to %s " % (
+                r1, r2, amplicon, sg, baseFrom, baseTo)) + \
+                      parameter + " --quantification_window_center -" + center + " -w " + win + " --plot_window_size " + win + \
+                      " -o %s/%s" % (output_path, output_name)
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 

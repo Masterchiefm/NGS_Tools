@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_PE.ui'
+# Form implementation generated from reading ui file './gui_PE.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -32,10 +32,28 @@ class Ui_CRISPResso(object):
         self.pushButton_chooseFolder.setObjectName("pushButton_chooseFolder")
         self.horizontalLayout_2.addWidget(self.pushButton_chooseFolder)
         self.verticalLayout_3.addWidget(self.groupBox)
-        self.label_4 = QtWidgets.QLabel(self.centralwidget)
-        self.label_4.setWordWrap(True)
-        self.label_4.setObjectName("label_4")
-        self.verticalLayout_3.addWidget(self.label_4)
+        self.frame_4 = QtWidgets.QFrame(self.centralwidget)
+        self.frame_4.setFrameShape(QtWidgets.QFrame.StyledPanel)
+        self.frame_4.setFrameShadow(QtWidgets.QFrame.Raised)
+        self.frame_4.setObjectName("frame_4")
+        self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.frame_4)
+        self.horizontalLayout_5.setObjectName("horizontalLayout_5")
+        self.label_6 = QtWidgets.QLabel(self.frame_4)
+        self.label_6.setWordWrap(True)
+        self.label_6.setObjectName("label_6")
+        self.horizontalLayout_5.addWidget(self.label_6)
+        self.groupBox_3 = QtWidgets.QGroupBox(self.frame_4)
+        self.groupBox_3.setMaximumSize(QtCore.QSize(150, 16777215))
+        self.groupBox_3.setAlignment(QtCore.Qt.AlignCenter)
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.groupBox_3)
+        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
+        self.lineEdit_split = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_split.setClearButtonEnabled(True)
+        self.lineEdit_split.setObjectName("lineEdit_split")
+        self.horizontalLayout_6.addWidget(self.lineEdit_split)
+        self.horizontalLayout_5.addWidget(self.groupBox_3)
+        self.verticalLayout_3.addWidget(self.frame_4)
         self.groupBox_2 = QtWidgets.QGroupBox(self.centralwidget)
         self.groupBox_2.setInputMethodHints(QtCore.Qt.ImhPreferNumbers)
         self.groupBox_2.setFlat(False)
@@ -192,7 +210,9 @@ class Ui_CRISPResso(object):
         CRISPResso.setWindowTitle(_translate("CRISPResso", "PE/HDR分析"))
         self.groupBox.setTitle(_translate("CRISPResso", "fastq数据文件夹"))
         self.pushButton_chooseFolder.setText(_translate("CRISPResso", "选择文件夹"))
-        self.label_4.setText(_translate("CRISPResso", "文件路径也不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，那么样品名就写第一个下划线_前的内容，即DS2-165。这样程序就能自动根据样品名给你匹配fastq文件。描述请尽量写详细，这个是给你自己看的！"))
+        self.label_6.setText(_translate("CRISPResso", "文件路径不能出现空格！样品名请根据测序文件名填写。例如，测序文件名是DS2-165_R1.fq.gz和DS2-165_R2.fq.gz，设置的分隔符是“_”，那么样品名就写第一个下划线_前的内容，即DS2-165。或者你可以把分隔副设为“_R”，程序也是直接识别测序文件名第一个\"_R\"之前的内容为样品名。这样程序就能自动根据样品名给你匹配fastq文件。\"描述\"一栏请尽量写详细，是给你自己看的！"))
+        self.groupBox_3.setTitle(_translate("CRISPResso", "样品名分隔符"))
+        self.lineEdit_split.setText(_translate("CRISPResso", "_"))
         self.groupBox_2.setTitle(_translate("CRISPResso", "基本信息"))
         self.checkBox_auto_fill_col.setText(_translate("CRISPResso", "自动向下填充"))
         item = self.tableWidget.verticalHeaderItem(0)

@@ -179,8 +179,9 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             seqPair = []
 
             # 测序文件一一匹配
+            splitor = self.lineEdit_split.text().strip()
             for f in fileList:
-                seq_name = f.split("_")[0]
+                seq_name = f.split(splitor)[0]
                 if seq_name == sample:
                     seqPair.append(path + "/" + f)
 
@@ -209,8 +210,16 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
             # 比对的目标序列
             amplicon = ref.loc[i]["原始序列"]
 
-
-            cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s "%(r1,r2,amplicon,sg)) + parameter + " -o %s/%s"%(output_path,sample)
+            if len(seqPair) == 2:
+                cmd = "CRISPResso  --base_editor_output  " + (" -r1 %s -r2 %s  -a %s -g %s "%(r1,r2,amplicon,sg)) + parameter + " -o %s/%s"%(output_path,sample)
+            elif len(seqPair) == 1:
+                cmd = "CRISPResso  --base_editor_output  " + (
+                            " -r1 %s   -a %s -g %s " % (r1, amplicon, sg)) + parameter + " -o %s/%s" % (
+                      output_path, sample)
+            else:
+                QMessageBox.about(self, "Error",
+                                  f"出错🌶\n\n 根据样品名在文件夹中找到多个文件：\n{seqPair}，\n\n请把非测序文件移出测序文件夹，或更改识别样品名模式。")
+                return
             cmdList.append(cmd)
             # cmdFrame.loc[sample, "cmd"] = cmd
 
