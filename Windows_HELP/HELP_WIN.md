@@ -66,7 +66,7 @@ fc-cache -fv
 
 在Ubuntu终端中下载，例如以下，自行替换链接即可
 ```
-wget   https://gitee.com/MasterChiefm/NGS_Tools/releases/download/1.5.0/NGS_Tools.tar.xz
+wget   https://gitee.com/MasterChiefm/NGS_Tools/releases/download/1.5.1/NGS_Tools.tar.xz
 ```
 
 2）解压程序
