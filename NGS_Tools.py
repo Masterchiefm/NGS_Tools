@@ -45,7 +45,8 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
             # print(info)
             latestVersion = info["tag_name"]
             releaseInfo = info["body"]
-            print(latestVersion)
+            print(f"Current Version:{self.version}")
+            print(f"Latest Version:{latestVersion}")
 
             if latestVersion == self.version:
                 # QMessageBox.about(self, "更新", "已经是最新")
