@@ -10,7 +10,7 @@ def checkConda():
         with open(installer,"w") as f:
             f.write("""#!/bin/bash
 rm -rf /tmp/miniconda.sh*
-wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
+wget --no-check-certificate  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
 bash /tmp/miniconda.sh -b -f
             """)
         os.system("bash ./" + installer)
