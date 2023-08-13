@@ -2,6 +2,30 @@
 ## 目的
 提供图形界面，让不会命令行的人也可以使用生信工具简便地分析基因编辑效果。
 
+## 公告(2023.08.13更新)
+本程序的初衷是为了为本组提供方便快捷的数据分析支持，但根据课题组成员反馈，本工作未能全程参与整个课题进展。因此，本程序不再进行维护，也不再提供可执行文件。
+
+但是基于开源分享的精神以及学术规范，本程序的源码始终保留且未进行修改。若有需求，可自行编译或者联系作者所在课题组PI。
+
+祝大家科研顺利！
+
+
+## Cite this work
+![doi](https://zenodo.org/badge/DOI/10.5281/zenodo.8243045.svg)
+
+
+If this work helps, please cite my work.
+
+You may cite as
+Qiqin Mo. (2023). Hanhui-Ma-Lab/NGS_Tools: public version (1.5.0). Zenodo. https://doi.org/10.5281/zenodo.8243045
+
+or
+
+It is recommended that citing the script by a link (such as: NGS_Tools(https://doi.org/10.5281/zenodo.8243045)) or refer to this page [Ways to cite a GitHub Repo](https://www.wikihow.com/Cite-a-GitHub-Repository)to promote reproducibility of your work.
+
+
+
+
 ## 视频教程
 [Bilibili-不会Linux也能自己用扩增子测序分析基因编辑效率](https://www.bilibili.com/video/BV1q84y1w7HH/)
 
