@@ -25,8 +25,8 @@ It is recommended that citing the script by a link (such as: NGS_Tools(https://d
 
 
 ## 从源码运行本程序
-＃＃＃ 下载、安装依赖
-首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。
+### 下载、安装依赖
+首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。WSL2的配置请参阅[此处](Windows_HELP/HELP_WIN.md)。
 
 1. 下载源码
 ```
