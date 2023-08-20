@@ -2,6 +2,14 @@
 ## 目的
 提供图形界面，让不会命令行的人也可以使用生信工具简便地分析基因编辑效果。
 
+## 功能
+1. 提供图形化的bcl2fastq界面，可以拆分下机数据（demultiplex）。
+详细说明请查阅[illumina说明](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)
+2. 提供[CRISPResso2](https://github.com/pinellolab/CRISPResso2)
+的图形操作界面，可以批量分析HDR，PE，BE，NHEJ.
+3. 收集编辑数据，并汇总到excel表。
+4. 一键安装分析环境
+
 ## 公告(2023.08.13更新)
 本程序的初衷是为了为本组提供方便快捷的数据分析支持，但根据课题组成员反馈，本工作未能全程参与整个课题进展。因此，本程序不再进行维护，也不再提供可执行文件。建议参考本文档的[从源码运行本程序](https://github.com/Masterchiefm/NGS_Tools#从源码运行本程序)部分。
 
@@ -62,13 +70,6 @@ python3 ./NGS_Tools.py
 
 看完记得投币
 
-## 功能
-1. 提供图形化的bcl2fastq界面，可以拆分下机数据（demultiplex）。
-详细说明请查阅[illumina说明](https://support.illumina.com/sequencing/sequencing_software/bcl2fastq-conversion-software.html)
-2. 提供[CRISPResso2](https://github.com/pinellolab/CRISPResso2)
-的图形操作界面，可以批量分析HDR，PE，BE，NHEJ.
-3. 收集编辑数据，并汇总到excel表。
-4. 一键安装分析环境
 
 
 ## 在Windows运行
