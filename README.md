@@ -3,7 +3,7 @@
 提供图形界面，让不会命令行的人也可以使用生信工具简便地分析基因编辑效果。
 
 ## 公告(2023.08.13更新)
-本程序的初衷是为了为本组提供方便快捷的数据分析支持，但根据课题组成员反馈，本工作未能全程参与整个课题进展。因此，本程序不再进行维护，也不再提供可执行文件。
+本程序的初衷是为了为本组提供方便快捷的数据分析支持，但根据课题组成员反馈，本工作未能全程参与整个课题进展。因此，本程序不再进行维护，也不再提供可执行文件。建议参考本文档的[从源码运行本程序](https://github.com/Masterchiefm/NGS_Tools#从源码运行本程序)部分。
 
 但是基于开源分享的精神以及学术规范，本程序的源码始终保留且未进行修改。若有需求，可自行编译或者联系作者所在课题组PI。
 
@@ -24,6 +24,37 @@ or
 It is recommended that citing the script by a link (such as: NGS_Tools(https://doi.org/10.5281/zenodo.8243045)) or refer to this page [Ways to cite a GitHub Repo](https://www.wikihow.com/Cite-a-GitHub-Repository)to promote reproducibility of your work.
 
 
+## 从源码运行本程序
+＃＃＃ 下载、安装依赖
+首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。
+
+1. 下载源码
+```
+# 下载
+git clone https://github.com/Masterchiefm/NGS_Tools.git
+
+＃ 进入下载的源码目录
+cd NGS_Tools
+```
+
+2. 安装依赖
+```
+pip install -r requirements.txt
+```
+
+3. 运行
+```
+python3 ./NGS_Tools.py
+```
+
+根据以上操作，即可运行本程序的图形界面。图形界面操作按照图形提示即可。或者参考以下视频。
+
+您也可以自由打包、分发，但是请注明来源。本Repo不再提供二进制文件。
+
+## 分割线
+-----------------
+以下内容为旧文档。曾经本项目提供打包好的二进制文件，旧文档为二进制文件的使用方法。
+-----------------
 
 
 ## 视频教程
