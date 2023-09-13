@@ -16,10 +16,6 @@
 
 If this work helps, please cite my work.
 
-You may cite as
-Qiqin Mo. (2023). Hanhui-Ma-Lab/NGS_Tools: public version (1.5.0). Zenodo. https://doi.org/10.5281/zenodo.8243045
-
-or
 
 It is recommended that citing the script by a link (such as: NGS_Tools(https://doi.org/10.5281/zenodo.8243045)) or refer to this page [Ways to cite a GitHub Repo](https://www.wikihow.com/Cite-a-GitHub-Repository)to promote reproducibility of your work.
 
@@ -53,7 +49,7 @@ python3 ./NGS_Tools.py
 
 ## 分割线
 -----------------
-以下内容为旧文档。曾经本项目提供打包好的二进制文件，旧文档为二进制文件的使用方法。
+如果你有编译好的二进制文件，以下文档为二进制文件的使用方法。
 -----------------
 
 
@@ -137,9 +133,7 @@ CPU建议8核心以上
 # 参数设置
 请关注质控、分析窗口这两个参数!这两个参数对结果有显著影响。[点击此处进行阅读](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)
 
-## 公告(2023.08.13更新)
-本程序的初衷是为了为本组提供方便快捷的数据分析支持，但根据课题组成员反馈，本工作未能全程参与整个课题进展。因此，本程序不再进行维护，也不再提供可执行文件。建议参考本文档的[从源码运行本程序](https://github.com/Masterchiefm/NGS_Tools#从源码运行本程序)部分。
-
-但是基于开源分享的精神以及学术规范，本程序的源码始终保留且未进行修改。若有需求，可自行编译或者联系作者所在课题组PI。
+## 写在最后
+本程序的初衷是为了为本组提供方便快捷的数据分析支持，希望能够帮助到别人的同时得到认可。写程序不是随便敲敲键盘就能搞定的事情，一样要付出很多的精力。
 
 祝大家科研顺利！
