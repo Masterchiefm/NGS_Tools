@@ -187,7 +187,7 @@ Chemistry,DNA,,,,,,
               " --sample-sheet " + self.plainTextEdit_readIllumina.toPlainText().strip() +"/SampleSheet.csv  "
         with open(".run.sh","w") as f:
             content = """#!/bin/bash
-            source ~/miniconda3/bin/activate base
+            source ~/miniconda3/bin/activate NGS
             echo 开始分析\n
             """ + "{\n" + cmd + "\n}& \nwait"
             f.write(content)
