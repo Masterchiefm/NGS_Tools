@@ -149,7 +149,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         parameter = "  " + self.plainTextEdit_parameters.toPlainText().replace("\n","  ")
 
         # 生成批处理文件
-        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n "]  # bash文件头
+        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate NGS \n "]  # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
         # Script Author:\tMo Qiqin
         # Contact:\tmoqq@shanghaitech.edu.cn\n
