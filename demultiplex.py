@@ -64,7 +64,6 @@ def extractSample(index1='', index2='',r1 = "",r2="",output_name=""):
 #the input $5 is R1 output
 #the input $6 is R2 output
 
-
 index1=$1
 index2=$2
 r1=$3
@@ -72,29 +71,29 @@ r2=$4
 o1=$5
 o2=$6
 
-session=$(cat /proc/sys/kernel/random/uuid)
+#R1索引匹配
+zcat ${r1} |grep -A 2 -B 1  --no-group-separator -E  ".{0,4}${index1}" >  ${index1}.tmp.txt
 
-varR1=${index1}
-zcat $r1| grep -E "^.{0,5}${varR1}" -i -B1| grep @ | awk '{print$1}' > ${varR1}.${session}.tmp.id.txt
-varR2=${index2}
 
-zcat ${r2}| grep -A1 -F -f ${varR1}.${session}.tmp.id.txt |\
-grep -E "^.{0,5}${varR2}" -i -B1| grep @| awk '{print$1}' >${varR1}.${varR2}.${session}.id.txt
+# R1索引名称列表
+grep  --no-group-separator -oE '^@[^ ]+' ${index1}.tmp.txt > ${index1}.tmp.idx
 
-echo  $r1 split.
-rm ${varR1}.${session}.tmp.id.txt
-#gunzip ${r1}
-#gunzip ${r2}
-    
-echo stage1 done.
-zcat ${r1} | grep -A3 -F -f ${varR1}.${varR2}.${session}.id.txt |grep -v "\-\-" > ${o1}
-zcat ${r1} | grep -A3 -F -f ${varR1}.${varR2}.${session}.id.txt |grep -v "\-\-" > ${o2}
-echo zip $r1
+#匹配R1并匹配R2
+zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${o2}
+
+# R2索引名称列表
+grep  --no-group-separator -oE '^@[^ ]+'  ${o2} > ${index1}.${index2}.tmp.idx
+
+# 根据R2索引输出R1
+zcat  ITIH5-AAVS1-NGS_R1.fq.gz  | grep  -A 3 --no-group-separator -F -f ${index1}.${index2}.tmp.idx > ${o1}
+
+echo "Zipping ${o1}"
 gzip -f ${o1}
 gzip -f ${o2}
-
-rm ${varR1}.${varR2}.${session}.id.txt
-echo $r1 reads have done."""
+echo $r1 reads have done.
+rm -rf ${index1}.tmp.txt
+rm -rf ${index1}.tmp.idx
+rm -rf ${index1}.${index2}.tmp.idx"""
     with open(".extract.sh", "w") as f:
         f.write(script)
     # cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " + output_name + "_R1.fastq " + output_name + "_R2,fastq"
