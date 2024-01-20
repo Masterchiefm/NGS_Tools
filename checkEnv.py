@@ -9,12 +9,16 @@ def checkConda():
         installer = str(time.time())
         with open(installer,"w") as f:
             f.write("""#!/bin/bash
-rm -rf /tmp/miniconda.sh*
-wget --no-check-certificate  https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O /tmp/miniconda.sh
-bash /tmp/miniconda.sh -b -f
+mkdir -p ~/miniconda3
+wget https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda3/miniconda.sh
+bash ~/miniconda3/miniconda.sh -b -u -p ~/miniconda3
+rm -rf ~/miniconda3/miniconda.sh
+~/miniconda3/bin/conda init bash
             """)
         os.system("bash ./" + installer)
         os.system("rm -rf " + installer)
+        os.system(" ~/miniconda3/bin/conda install conda-forge::mamba -y")
+        os.system("~/miniconda3/bin/mamba create -n NGS python=3.9 -y")
         print("done")
         print(time.ctime())
 
@@ -36,9 +40,11 @@ custom_channels:
   pytorch-lts: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud
   simpleitk: https://mirrors.tuna.tsinghua.edu.cn/anaconda/cloud""")
         os.system(" ~/miniconda3/bin/conda clean -i -y")
+        # os.system("conda install conda-forge::mamba -y")
+        
 
 def checkBCL2Fq():
-    bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'],shell=True,stderr=subprocess.PIPE)
+    bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run  -n NGS bcl2fastq -v'],shell=True,stderr=subprocess.PIPE)
     verion = str(bclInfo.stderr.read())
     print(verion)
     if "Illumina" in verion:
@@ -49,7 +55,7 @@ def checkBCL2Fq():
         print("未安装bcl2fastq")
         updateCondaMirror()
         print("开始安装")
-        os.system(" ~/miniconda3/bin/conda install -c dranew bcl2fastq -y")
+        os.system(" ~/miniconda3/bin/conda install -n NGS -c dranew bcl2fastq -y")
 
 def checkCRISPResso2():
     info = os.system(" ~/miniconda3/bin/conda run CRISPResso --help")
@@ -65,7 +71,7 @@ def checkCRISPResso2():
         print("开始安装")
         os.system(" ~/miniconda3/bin/conda  config --add channels bioconda")
         os.system(" ~/miniconda3/bin/conda  config --add channels conda-forge")
-        os.system(" ~/miniconda3/bin/conda install -c bioconda CRISPResso2 -y")
+        os.system(" ~/miniconda3/bin/conda install -n NGS -c bioconda CRISPResso2 -y")
         print(time.ctime())
 
 def check():
