@@ -173,7 +173,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.label.setText(""" ε٩(๑> ₃ <)۶з  正在运行，界面会卡住很久，请少安毋躁♥""")
         self.time0 = time.ctime()
         extractSample()
-        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate base \n"]  # bash文件头
+        bashData = ["#!/bin/bash\n  source ~/miniconda3/bin/activate NGS \n"]  # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
                         # Script Author:\tMo Qiqin
                         # Contact:\tmoqq@shanghaitech.edu.cn\n
