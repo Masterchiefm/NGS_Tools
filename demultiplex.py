@@ -28,7 +28,7 @@ def reverseDNA(dna):
             j = "N"
 
         result = result + j
-    return  result
+    return result
 
 
 def getLyric():
@@ -75,11 +75,11 @@ o2=$6
 session=$(cat /proc/sys/kernel/random/uuid)
 
 varR1=${index1}
-zcat $r1| grep ^${varR1} -i -B1| grep @ | awk '{print$1}' > ${varR1}.${session}.tmp.id.txt
+zcat $r1| grep -E "^.{0,5}${varR1}" -i -B1| grep @ | awk '{print$1}' > ${varR1}.${session}.tmp.id.txt
 varR2=${index2}
 
 zcat ${r2}| grep -A1 -F -f ${varR1}.${session}.tmp.id.txt |\
-grep ^${varR2} -i -B1| grep @| awk '{print$1}' >${varR1}.${varR2}.${session}.id.txt
+grep -E "^.{0,5}${varR2}" -i -B1| grep @| awk '{print$1}' >${varR1}.${varR2}.${session}.id.txt
 
 echo  $r1 split.
 rm ${varR1}.${session}.tmp.id.txt
