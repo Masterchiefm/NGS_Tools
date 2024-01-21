@@ -29,6 +29,12 @@ rm -rf ~/miniconda3/miniconda.sh
         os.system(" ~/miniconda3/bin/conda install conda-forge::mamba -y")
         os.system("~/miniconda3/bin/mamba create -n NGS python=3.9 -y")
 
+    mambaInfo = os.popen(" ~/miniconda3/bin/mamba info")
+    if "mamba version" in mambaInfo.read():
+        print("### mamba ready ###")
+    else:
+        os.system(" ~/miniconda3/bin/conda install conda-forge::mamba -y")
+
 
 def updateCondaMirror():
     with open(os.environ["HOME"]+"/.condarc","w") as f:
@@ -63,10 +69,10 @@ def checkBCL2Fq():
         print("未安装bcl2fastq")
         updateCondaMirror()
         print("开始安装")
-        os.system(" ~/miniconda3/bin/conda install -n NGS -c dranew bcl2fastq -y")
+        os.system(" ~/miniconda3/bin/mamba install os.system("")-n NGS -c dranew bcl2fastq -y")
 
 def checkCRISPResso2():
-    info = os.system(" ~/miniconda3/bin/conda run CRISPResso --help")
+    info = os.system(" ~/miniconda3/bin/conda run -n NGS CRISPResso --help")
     print(info)
     if info == 0:
         print("### CRISPResso ready ###")
@@ -79,7 +85,7 @@ def checkCRISPResso2():
         print("开始安装")
         os.system(" ~/miniconda3/bin/conda  config --add channels bioconda")
         os.system(" ~/miniconda3/bin/conda  config --add channels conda-forge")
-        os.system(" ~/miniconda3/bin/conda install -n NGS -c bioconda CRISPResso2 -y")
+        os.system(" ~/miniconda3/bin/mamba install -n NGS -c bioconda CRISPResso2 -y")
         print(time.ctime())
 
 def check():
