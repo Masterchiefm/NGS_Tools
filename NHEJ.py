@@ -101,7 +101,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_generateFq.clicked.connect(self.start)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
+        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run  -n NGS CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
         verion = str(crisprInfo.stdout.read().decode("utf-8"))
         # print(verion)
         if "[CRISPResso" in verion:
@@ -363,7 +363,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         import checkEnv
         checkEnv.check()
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run CRISPResso --version'], shell=True,
+        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True,
                                       stdout=subprocess.PIPE)
         verion = str(crisprInfo.stdout.read().decode("utf-8"))
         # print(verion)

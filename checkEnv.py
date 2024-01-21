@@ -22,6 +22,14 @@ rm -rf ~/miniconda3/miniconda.sh
         print("done")
         print(time.ctime())
 
+    conda_envs = os.popen(" ~/miniconda3/bin/conda env list")
+    if "NGS" in conda_envs:
+        pass
+    else:
+        os.system(" ~/miniconda3/bin/conda install conda-forge::mamba -y")
+        os.system("~/miniconda3/bin/mamba create -n NGS python=3.9 -y")
+
+
 def updateCondaMirror():
     with open(os.environ["HOME"]+"/.condarc","w") as f:
         f.write("""channels:

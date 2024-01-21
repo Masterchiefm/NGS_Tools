@@ -105,7 +105,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
         self.pushButton_stop.clicked.connect(self.stopTread)
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
+        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
         verion = str(crisprInfo.stdout.read().decode("utf-8"))
         # print(verion)
         if "[CRISPResso" in verion:
@@ -185,6 +185,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
                 # Contact:\tmoqq@shanghaitech.edu.cn\n
                 uid=$1
                 mkdir /tmp/${uid}
+                conda env list
                 """
         bashData.append(authorInfo)
         thread = int(os.cpu_count() * 2)
@@ -482,7 +483,7 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         import checkEnv
         checkEnv.check()
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run CRISPResso --version'], shell=True,
+        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True,
                                       stdout=subprocess.PIPE)
         verion = str(crisprInfo.stdout.read().decode("utf-8"))
         # print(verion)

@@ -76,7 +76,7 @@ class bgCRISPResso(QThread):
         super(bgCRISPResso,self).__init__()
 
     def bgTask(self):
-        header = "#!/bin/bash\n source ~/miniconda3/bin/activate base  \n" # bash文件头
+        header = "#!/bin/bash\n source ~/miniconda3/bin/activate NGS \n" # bash文件头
         authorInfo = """# This Script is generated automatically. Do not modify anything unless you know what you are doing.
                         # Script Author:\tMo Qiqin
                         # Contact:\tmoqq@shanghaitech.edu.cn\n
@@ -242,7 +242,8 @@ class bgRun(QThread):
 
     def run(self) -> None:
         # self.started.emit(self.cmd)
-        os.system("~/miniconda3/bin/conda run " + self.cmd)
+        os.system("~/miniconda3/bin/conda run -n NGS " + self.cmd)
+        print("~/miniconda3/bin/conda run -n NGS " + self.cmd)
         self.finished.emit(self.cmd)
 
 class lyricThread(QThread):

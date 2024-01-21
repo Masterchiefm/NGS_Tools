@@ -94,7 +94,7 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.pushButton_generateFq.clicked.connect(self.writeSampleSheet)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
+        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
         verion = str(bclInfo.stderr.read().decode("utf-8"))
         print(verion)
         if "Illumina" in verion:
@@ -215,7 +215,7 @@ Chemistry,DNA,,,,,,
     def finish(self,msg):
         self.progressBar.setVisible(False)
         self.pushButton_generateFq.setEnabled(True)
-        QMessageBox.about(self,"运行结果",msg + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run " + self.cmd)
+        QMessageBox.about(self,"运行结果",msg + "\n\n以上为本次运行结果的最后一行输出。\n\n若有错请在终端重新运行，并根据输出修改错误。刚刚运行的指令为\n\n" + "~/miniconda3/bin/conda run -n NGS " + self.cmd)
         # os.system("gedit " + log)
         lyric = getLyric()
         self.label.setText(lyric)
@@ -240,7 +240,7 @@ Chemistry,DNA,,,,,,
         import checkEnv
         checkEnv.check()
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
+        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
         verion = str(bclInfo.stderr.read().decode("utf-8"))
         print(verion)
         if "Illumina" in verion:
