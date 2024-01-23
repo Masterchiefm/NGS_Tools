@@ -9,6 +9,7 @@ import os
 import time
 from background_task import bgThread
 import background_task
+# import filterFastqs
 # DNA序列工具
 def reverseDNA(dna):
     #a = list(dna)
@@ -80,22 +81,26 @@ zcat ${r1} |grep -A 2 -B 1  --no-group-separator -E  "^.{0,4}${index1}" >  ${ind
 grep  --no-group-separator -oE '^@[^ ]+' ${index1}.${session}.tmp.txt > ${index1}.${session}.tmp.idx
 
 #匹配R1并匹配R2
-zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${o2}
+zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${session}_r2.fastq
 
 # R2索引名称列表
-grep  --no-group-separator -oE '^@[^ ]+'  ${o2} > ${index1}.${index2}.${session}.tmp.idx
+grep  --no-group-separator -oE '^@[^ ]+'  ${session}_r2.fastq > ${index1}.${index2}.${session}.tmp.idx
 
 # 根据R2索引输出R1
-zcat  ${r1}  | grep  -A 3 --no-group-separator -F -f ${index1}.${index2}.${session}.tmp.idx > ${o1}
+zcat  ${r1}  | grep  -A 3 --no-group-separator -F -f ${index1}.${index2}.${session}.tmp.idx > ${session}_r1.fastq
 
 echo "Zipping ${o1}"
-gzip -f ${o1}
-gzip -f ${o2}
+gzip -f ${session}_r1.fastq
+gzip -f ${session}_r2.fastq
 echo $r1 reads have done.
 rm -rf ${index1}.${session}.tmp.txt
 rm -rf ${index1}.${session}.tmp.idx
 rm -rf ${index1}.${index2}.${session}.tmp.idx
+python3 FilterFastqs.py --fastq_r1  ${session}_r1.fastq.gz  --fastq_r2 ${session}_r2.fastq.gz --min_bp_qual_in_read 5 --min_av_read_qual 0 --min_bp_qual_or_N 5 --fastq_r1_out ${o1}.gz --fastq_r2_out ${o2}.gz
+rm -rf ${session}_r1.fastq.gz
+rm -rf ${session}_r2.fastq.gz
 """
+
     with open(".extract.sh", "w") as f:
         f.write(script)
     # cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " + output_name + "_R1.fastq " + output_name + "_R2,fastq"
