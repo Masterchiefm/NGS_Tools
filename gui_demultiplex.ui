@@ -82,6 +82,29 @@
       </property>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
+        <widget class="QGroupBox" name="groupBox_3">
+         <property name="title">
+          <string>索引位置:</string>
+         </property>
+         <layout class="QHBoxLayout" name="horizontalLayout_4">
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="text">
+             <string>例如某样品的索引是GAG，但是实际测序结果在消除接头后还带有部分序列，如序列atatCAGaac,那么索引位置请设为4。</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="lineEdit_distance">
+            <property name="text">
+             <string>4</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="checkBox_auto_fill_col">
          <property name="text">
           <string>自动向下填充</string>

@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file '/home/chief/PycharmProjects/NGS_Tools/gui_demultiplex.ui'
+# Form implementation generated from reading ui file 'gui_demultiplex.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.9
 #
@@ -46,6 +46,17 @@ class Ui_BCL2Fastq(object):
         self.groupBox_2.setObjectName("groupBox_2")
         self.verticalLayout = QtWidgets.QVBoxLayout(self.groupBox_2)
         self.verticalLayout.setObjectName("verticalLayout")
+        self.groupBox_3 = QtWidgets.QGroupBox(self.groupBox_2)
+        self.groupBox_3.setObjectName("groupBox_3")
+        self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.groupBox_3)
+        self.horizontalLayout_4.setObjectName("horizontalLayout_4")
+        self.label_2 = QtWidgets.QLabel(self.groupBox_3)
+        self.label_2.setObjectName("label_2")
+        self.horizontalLayout_4.addWidget(self.label_2)
+        self.lineEdit_distance = QtWidgets.QLineEdit(self.groupBox_3)
+        self.lineEdit_distance.setObjectName("lineEdit_distance")
+        self.horizontalLayout_4.addWidget(self.lineEdit_distance)
+        self.verticalLayout.addWidget(self.groupBox_3)
         self.checkBox_auto_fill_col = QtWidgets.QCheckBox(self.groupBox_2)
         self.checkBox_auto_fill_col.setObjectName("checkBox_auto_fill_col")
         self.verticalLayout.addWidget(self.checkBox_auto_fill_col)
@@ -200,6 +211,9 @@ class Ui_BCL2Fastq(object):
 "\n"
 "使用前点击清空即可删除示例！！！"))
         self.groupBox_2.setTitle(_translate("BCL2Fastq", "基本信息"))
+        self.groupBox_3.setTitle(_translate("BCL2Fastq", "索引位置:"))
+        self.label_2.setText(_translate("BCL2Fastq", "例如某样品的索引是GAG，但是实际测序结果在消除接头后还带有部分序列，如序列atatCAGaac,那么索引位置请设为4。"))
+        self.lineEdit_distance.setText(_translate("BCL2Fastq", "4"))
         self.checkBox_auto_fill_col.setText(_translate("BCL2Fastq", "自动向下填充"))
         item = self.tableWidget.verticalHeaderItem(0)
         item.setText(_translate("BCL2Fastq", "示例"))
