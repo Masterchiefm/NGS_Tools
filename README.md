@@ -20,7 +20,7 @@ If this work helps, please cite my work.
 It is recommended that citing the script by a link (such as: NGS_Tools(https://doi.org/10.5281/zenodo.8243045)) or refer to this page [Ways to cite a GitHub Repo](https://www.wikihow.com/Cite-a-GitHub-Repository)to promote reproducibility of your work.
 
 
-## 从源码运行本程序
+## 从源码运行本程序(推荐)
 
 首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。WSL2的配置请参阅[此处](Windows_HELP/HELP_WIN.md)。
 
@@ -49,7 +49,9 @@ python3 ./NGS_Tools.py
 
 ## 分割线
 -----------------
-如果你有编译好的二进制文件，以下文档为二进制文件的使用方法。
+如果你有编译好的二进制文件，以下文档为二进制文件的使用方法。没有的话请找我或者自行编译。
+编译、二次修改的程序可自由分发而无需作者本人同意，但是需要注明出处。
+本来是直接提供编译好的文件的，但我摆了
 -----------------
 
 
@@ -60,7 +62,7 @@ python3 ./NGS_Tools.py
 
 
 
-## 在Windows运行
+## 在Windows运行（不推荐！）
 本程序只能在Linux系统中运行，如果你使用Windows，也不是不能用，在Windows的Linux子系统里也能运行该程序，只不过要稍微配置一下。
 
 或者下载Virtual Box，在虚拟机里安装Ubuntu等系统来运行该程序也行。
@@ -70,7 +72,7 @@ python3 ./NGS_Tools.py
 
 
 
-## 在Linux系统运行
+## 在Linux系统运行（推荐）
 系统要求：
 1. 必须安装中文系统，英文系统可能会有字符乱码。若遇到字符乱码，请自行为系统添加中文字体
 2. 使用以下任一个发行版均可
