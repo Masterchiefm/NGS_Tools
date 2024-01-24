@@ -71,34 +71,38 @@ r1=$3
 r2=$4
 o1=$5
 o2=$6
+d=$7
 session=$(cat /proc/sys/kernel/random/uuid)
 
-#R1索引匹配
-zcat ${r1} |grep -A 2 -B 1  --no-group-separator -E  "^.{0,4}${index1}" >  ${index1}.${session}.tmp.txt
+# 符合index1
+zcat ${r1} |grep -A 2 -B 1  --no-group-separator -E  "^.{0,$d}${index1}" >  ${index1}.${session}.tmp.txt
+n=$(cat  ${index1}.${session}.tmp.txt |grep @|wc -l)
+echo "find $n record with barcode $index1"
 
+grep  --no-group-separator -oE '^@[^ ]+ ' ${index1}.${session}.tmp.txt > ${index1}.${session}.tmp.idx
+n=$(cat  ${index1}.${session}.tmp.idx |grep @|wc -l)
+echo "export $n barcode id"
 
-# R1索引名称列表
-grep  --no-group-separator -oE '^@[^ ]+' ${index1}.${session}.tmp.txt > ${index1}.${session}.tmp.idx
-
-#匹配R1并匹配R2
-zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${session}_r2.fastq
+zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${o2}
+n=$(cat  ${o2} |grep @|wc -l)
+echo "find $n record in r2"
 
 # R2索引名称列表
-grep  --no-group-separator -oE '^@[^ ]+'  ${session}_r2.fastq > ${index1}.${index2}.${session}.tmp.idx
+grep  --no-group-separator -oE '^@[^ ]+ '  ${o2} > ${index1}.${index2}.${session}.tmp.idx
+n=$(cat  ${index1}.${index2}.${session}.tmp.idx |grep @|wc -l)
+echo "created $n id by r2"
 
 # 根据R2索引输出R1
-zcat  ${r1}  | grep  -A 3 --no-group-separator -F -f ${index1}.${index2}.${session}.tmp.idx > ${session}_r1.fastq
-
-echo "Zipping ${o1}"
-gzip -f ${session}_r1.fastq
-gzip -f ${session}_r2.fastq
-echo $r1 reads have done.
+cat  ${index1}.${session}.tmp.txt | grep  -A 3 --no-group-separator -F -f ${index1}.${index2}.${session}.tmp.idx > ${o1}
+n=$(cat  ${o1} |grep @|wc -l)
+echo "get $n record in r1"
+rm -rf ${o1}.gz
+rm -rf ${o2}.gz
+gzip $o1
+gzip $o2
 rm -rf ${index1}.${session}.tmp.txt
 rm -rf ${index1}.${session}.tmp.idx
 rm -rf ${index1}.${index2}.${session}.tmp.idx
-python3 FilterFastqs.py --fastq_r1  ${session}_r1.fastq.gz  --fastq_r2 ${session}_r2.fastq.gz --min_bp_qual_in_read 5 --min_av_read_qual 0 --min_bp_qual_or_N 5 --fastq_r1_out ${o1}.gz --fastq_r2_out ${o2}.gz
-rm -rf ${session}_r1.fastq.gz
-rm -rf ${session}_r2.fastq.gz
 """
 
     with open(".extract.sh", "w") as f:
@@ -246,7 +250,8 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                     ref.loc[i,"测序文件1"] = sample + "_on_" + pool + "_R1.fastq"
                     ref.loc[i, "测序文件2"] = sample + "_on_" + pool + "_R2.fastq"
                     task_count = task_count + 1
-                    cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
+                    # cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
+                    cmd = f"bash .extract.sh {index1} {index2} {r1} {r2} {output_path}/{sample}_on_{pool}_R1.fastq {output_path}/{sample}_on_{pool}_R2.fastq 4"
                     CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n " + " touch /tmp/${uid}/" + str(task_count) + "\n\n"
                     bashData.append(CMD)
                     counter = counter + 1
