@@ -69,7 +69,7 @@ def checkBCL2Fq():
         print("未安装bcl2fastq")
         updateCondaMirror()
         print("开始安装")
-        os.system(" ~/miniconda3/bin/mamba install os.system("")-n NGS -c dranew bcl2fastq -y")
+        os.system(" ~/miniconda3/bin/mamba install -n NGS -c dranew bcl2fastq -y")
 
 def checkCRISPResso2():
     info = os.system(" ~/miniconda3/bin/conda run -n NGS CRISPResso --help")
