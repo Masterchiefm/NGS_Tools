@@ -20,39 +20,7 @@ If this work helps, please cite my work.
 It is recommended that citing the script by a link (such as: NGS_Tools(https://doi.org/10.5281/zenodo.8243045)) or refer to this page [Ways to cite a GitHub Repo](https://www.wikihow.com/Cite-a-GitHub-Repository)to promote reproducibility of your work.
 
 
-## 从源码运行本程序(推荐)
 
-首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。WSL2的配置请参阅[此处](Windows_HELP/HELP_WIN.md)。
-
-1. 下载源码
-```
-# 下载
-git clone https://github.com/Masterchiefm/NGS_Tools.git
-
-＃ 进入下载的源码目录
-cd NGS_Tools
-```
-
-2. 安装依赖
-```
-pip install -r requirements.txt
-```
-
-3. 运行
-```
-python3 ./NGS_Tools.py
-```
-
-根据以上操作，即可运行本程序的图形界面。图形界面操作按照图形提示即可。或者参考以下视频。
-
-您也可以自由打包、分发，但是请注明来源。本Repo不再提供二进制文件。
-
-## 分割线
------------------
-如果你有编译好的二进制文件，以下文档为二进制文件的使用方法。没有的话请找我或者自行编译。
-编译、二次修改的程序可自由分发而无需作者本人同意，但是需要注明出处。
-本来是直接提供编译好的文件的，但我摆了
------------------
 
 
 ## 视频教程
@@ -131,6 +99,32 @@ CPU建议8核心以上
 
 ![](5.png)
 
+## 从源码运行本程序
+
+首先需要准备一台有Linux系统的电脑，推荐Ubuntu22.04。使用Windows的Linux子系统也可，但是需要有WSL2图形支持。WSL2的配置请参阅[此处](Windows_HELP/HELP_WIN.md)。
+
+1. 下载源码
+```
+# 下载
+git clone https://github.com/Masterchiefm/NGS_Tools.git
+
+＃ 进入下载的源码目录
+cd NGS_Tools
+```
+
+2. 安装依赖
+```
+pip install -r requirements.txt
+```
+
+3. 运行
+```
+python3 ./NGS_Tools.py
+```
+
+根据以上操作，即可运行本程序的图形界面。图形界面操作按照图形提示即可。或者参考以下视频。
+
+您也可以自由打包、分发，但是请注明来源。本随缘提供二进制文件。
 
 # 参数设置
 请关注质控、分析窗口这两个参数!这两个参数对结果有显著影响。[点击此处进行阅读](https://gitee.com/MasterChiefm/NGS_Tools/blob/master/help/parameters.md)
