@@ -85,7 +85,7 @@ grep  --no-group-separator -oE '^@[^ ]+ ' ${index1}.${session}.tmp.txt > ${index
 n=$(cat  ${index1}.${session}.tmp.idx |grep @|wc -l)
 echo "export $n barcode id"
 
-zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,4}${index2}" > ${o2}
+zcat  ${r2} | grep  -A 3 --no-group-separator -F -f ${index1}.${session}.tmp.idx |grep -A 2 -B 1 --no-group-separator  -E "^.{0,%d}${index2}" > ${o2}
 n=$(cat  ${o2} |grep @|wc -l)
 echo "find $n record in r2"
 
@@ -253,7 +253,9 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
                     ref.loc[i, "测序文件2"] = sample + "_on_" + pool + "_R2.fastq"
                     task_count = task_count + 1
                     # cmd = "bash .extract.sh " + index1 + " " + index2 + " " + r1 + " " + r2 + " " +  output_path + "/" +sample + "_on_" + pool + "_R1.fastq " + output_path + "/"  + sample + "_on_" + pool + "_R2.fastq"
-                    distance = str(self.lineEdit_distance.text())
+                    # distance = str(self.lineEdit_distance.text())
+                    distance = str("10")
+                    
                     cmd = f"bash .extract.sh {index1} {index2} {r1} {r2} {output_path}/{sample}_on_{pool}_R1.fastq {output_path}/{sample}_on_{pool}_R2.fastq {distance}"
                     CMD = "{\n" + cmd + "\n}&\n" + "\n clear \n " + " touch /tmp/${uid}/" + str(task_count) + "\n\n"
                     bashData.append(CMD)
