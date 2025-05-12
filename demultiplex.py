@@ -64,6 +64,8 @@ def extractSample(index1='', index2='',r1 = "",r2="",output_name=""):
 #the input $4 is R2 file
 #the input $5 is R1 output
 #the input $6 is R2 output
+#the input $7 is the length range of index upstream sequence. for example sequence ABCD with input 4, I will match any seq in range {0,4}, then match the index
+
 
 index1=$1
 index2=$2
