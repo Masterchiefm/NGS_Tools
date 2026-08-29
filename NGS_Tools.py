@@ -13,6 +13,23 @@ import qdarktheme
 import random
 
 
+class UpdateCheckThread(QtCore.QThread):
+    done = QtCore.pyqtSignal(object)
+
+    def run(self) -> None:
+        headers = {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
+        try:
+            latestInfo = requests.get("https://gitee.com/api/v5/repos/MasterChiefm/NGS_Tools/releases/latest",
+                                      timeout=1.5,
+                                      headers=headers)
+            info = json.loads(latestInfo.text)
+            self.done.emit(info)
+        except Exception as e:
+            print(e)
+            self.done.emit(None)
+
+
 class MyMainWin(QMainWindow, Ui_MainWindow):
     def __init__(self, parent = None):
         super(MyMainWin, self).__init__(parent)
@@ -30,18 +47,15 @@ class MyMainWin(QMainWindow, Ui_MainWindow):
         self.centerWin()
 
     def checkUpdate(self):
-        """使用requests模块和GitHub api获取最新版本"""
+        """后台线程请求 gitee api 获取最新版本，避免阻塞界面"""
+        self.updateCheckThread = UpdateCheckThread()
+        self.updateCheckThread.done.connect(self.showUpdate)
+        self.updateCheckThread.start()
 
-        headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/102.0.0.0 Safari/537.36'}
-
-        # print(latestInfo)
+    def showUpdate(self, info):
+        if info is None:
+            return
         try:
-            latestInfo = requests.get("https://gitee.com/api/v5/repos/MasterChiefm/NGS_Tools/releases/latest",
-                                      timeout=1.5,
-                                      headers=headers)
-            info = latestInfo.text
-            info = json.loads(info)
             # print(info)
             latestVersion = info["tag_name"]
             releaseInfo = info["body"]

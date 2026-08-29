@@ -227,14 +227,18 @@ def checkBCL2Fq():
     _, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
     if "Illumina" in output:
         log("### bcl2fastq ready ###")
-        return output
+        return True
     log("未安装bcl2fastq，开始安装")
     updateCondaMirror()
     runner = MAMBA_BIN if os.path.isfile(MAMBA_BIN) else CONDA_BIN
     code, output = run([runner, "install", "-n", ENV_NAME, "-c", "dranew",
                         "bcl2fastq", "-y"], timeout=3600)
-    if code != 0:
-        log("错误: bcl2fastq 安装失败:\n" + output)
+    _, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
+    if "Illumina" in output:
+        log("### bcl2fastq ready ###")
+        return True
+    log("错误: bcl2fastq 安装失败:\n" + output)
+    return False
 
 
 def checkCRISPResso2():
@@ -242,7 +246,7 @@ def checkCRISPResso2():
     if code == 0:
         log("### CRISPResso ready ###")
         log(time.ctime())
-        return 0
+        return True
     log("未安装CRISPResso，开始安装")
     updateCondaMirror()
     run([CONDA_BIN, "config", "--add", "channels", "bioconda"])
@@ -250,16 +254,21 @@ def checkCRISPResso2():
     runner = MAMBA_BIN if os.path.isfile(MAMBA_BIN) else CONDA_BIN
     code, output = run([runner, "install", "-n", ENV_NAME, "-c", "bioconda",
                         "CRISPResso2", "-y"], timeout=7200)
-    if code != 0:
-        log("错误: CRISPResso2 安装失败:\n" + output)
+    code, _ = run([CONDA_BIN, "run", "-n", ENV_NAME, "CRISPResso", "--help"])
+    if code == 0:
+        log("### CRISPResso ready ###")
+        log(time.ctime())
+        return True
+    log("错误: CRISPResso2 安装失败:\n" + output)
     log(time.ctime())
+    return False
 
 
 def check():
     if not checkConda():
-        return
-    checkBCL2Fq()
-    checkCRISPResso2()
+        return False
+    ok = checkBCL2Fq()
+    return checkCRISPResso2() and ok
 
 
 if __name__ == "__main__":

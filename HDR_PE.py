@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDi
 import pandas as pd
 from gui_PE import Ui_CRISPResso
 import subprocess
+from version_check import VersionCheckThread
 import requests
 from background_task import lyricThread, bgCRISPResso
 
@@ -104,16 +105,10 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
         self.pushButton_generateFq.clicked.connect(self.start)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True, stdout=subprocess.PIPE)
-        verion = str(crisprInfo.stdout.read().decode("utf-8"))
-        # print(verion)
-        if "[CRISPResso" in verion:
-            print("### CRISPResso2 ready ###")
-            self.label_version.setText(str(verion.splitlines()[-2:]))
-            self.pushButton_install.setVisible(False)
-        else:
-            self.label_version.setText("未安装")
-            self.pushButton_install.setVisible(True)
+        self.label_version.setText("检测中...")
+        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS CRISPResso --version")
+        self.versionCheck.ready.connect(self.updateVersion)
+        self.versionCheck.start()
 
     def stopTread(self):
         self.lyricThread.terminate()
@@ -423,19 +418,28 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
     def installDependence(self):
         import env_install_dialog
-        env_install_dialog.run_install(self)
+        env_install_dialog.run_install(self, on_finished=self.afterInstall)
 
-        crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True,
-                                      stdout=subprocess.PIPE)
-        verion = str(crisprInfo.stdout.read().decode("utf-8"))
+    def updateVersion(self, verion, after_install=False):
         # print(verion)
         if "[CRISPResso" in verion:
             print("### CRISPResso2 ready ###")
             self.label_version.setText(str(verion.splitlines()[-2:]))
+            self.pushButton_install.setVisible(False)
         else:
+            self.pushButton_install.setVisible(True)
             self.label_version.setText("未安装")
+            if after_install:
+                QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n安装失败，请重试")
+            return
+        if after_install:
+            QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + str(verion.splitlines()[-2:]))
 
-        QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + verion)
+    def afterInstall(self, ok):
+        self.label_version.setText("检测中...")
+        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS CRISPResso --version")
+        self.versionCheck.ready.connect(lambda verion: self.updateVersion(verion, after_install=True))
+        self.versionCheck.start()
 
 
 

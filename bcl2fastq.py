@@ -7,6 +7,7 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QTableWidgetItem, QFileDi
 import pandas as pd
 from gui_bcl2fq import Ui_BCL2Fastq
 import subprocess
+from version_check import VersionCheckThread
 import requests
 import background_task
 
@@ -94,16 +95,10 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         self.pushButton_generateFq.clicked.connect(self.writeSampleSheet)
         self.pushButton_chooseFolder.clicked.connect(self.chooseFolder)
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
-        verion = str(bclInfo.stderr.read().decode("utf-8"))
-        print(verion)
-        if "Illumina" in verion:
-            print("### bcl2fastq ready ###")
-            self.label_version.setText(verion)
-            self.pushButton_install_bcl2fq.setVisible(False)
-        else:
-            self.label_version.setText("未安装")
-            self.pushButton_install_bcl2fq.setVisible(True)
+        self.label_version.setText("检测中...")
+        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS bcl2fastq -v", capture="stderr")
+        self.versionCheck.ready.connect(self.updateVersion)
+        self.versionCheck.start()
 
 
 
@@ -234,19 +229,27 @@ Chemistry,DNA,,,,,,
 
     def installDependence(self):
         import env_install_dialog
-        env_install_dialog.run_install(self)
+        env_install_dialog.run_install(self, on_finished=self.afterInstall)
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
-        verion = str(bclInfo.stderr.read().decode("utf-8"))
+    def updateVersion(self, verion, after_install=False):
         print(verion)
         if "Illumina" in verion:
             print("### bcl2fastq ready ###")
             self.label_version.setText(verion)
+            self.pushButton_install_bcl2fq.setVisible(False)
         else:
             self.label_version.setText("未安装")
-            verion = "安装失败，请重试"
+            if after_install:
+                QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n安装失败，请重试")
+            return
+        if after_install:
+            QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + verion)
 
-        QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + verion)
+    def afterInstall(self, ok):
+        self.label_version.setText("检测中...")
+        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS bcl2fastq -v", capture="stderr")
+        self.versionCheck.ready.connect(lambda verion: self.updateVersion(verion, after_install=True))
+        self.versionCheck.start()
 
 
 
