@@ -422,12 +422,8 @@ class MyMainWin(QMainWindow, Ui_CRISPResso):
 
 
     def installDependence(self):
-        self.label.setText("正在安装，请少安毋躁")
-        QMessageBox.about(self,"提示","注意，点了ok后，界面将卡住不动，不要关闭该程序！")
-        lyric = getLyric()
-        self.label.setText(lyric)
-        import checkEnv
-        checkEnv.check()
+        import env_install_dialog
+        env_install_dialog.run_install(self)
 
         crisprInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS CRISPResso --version'], shell=True,
                                       stdout=subprocess.PIPE)

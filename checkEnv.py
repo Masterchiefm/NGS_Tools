@@ -1,5 +1,6 @@
 import os
 import time
+import select
 import subprocess
 
 CONDA_HOME = os.path.join(os.environ["HOME"], "miniconda3")
@@ -22,23 +23,72 @@ ANACONDA_MIRRORS = [
 OFFICIAL_MINICONDA_URL = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
 PROBE_PATH = "/pkgs/main/linux-64/repodata.json"
 
+# 实时输出回调，GUI 通过 set_progress_callback 注册；未注册时仅打印到控制台
+_progress_callback = None
+
+
+def set_progress_callback(fn):
+    """注册实时输出回调 fn(msg)，传 None 取消"""
+    global _progress_callback
+    _progress_callback = fn
+
+
+def _dispatch(msg):
+    if _progress_callback:
+        try:
+            _progress_callback(msg)
+        except Exception:
+            pass
+
 
 def log(msg):
-    print("[checkEnv {}] {}".format(time.strftime("%H:%M:%S"), msg), flush=True)
+    text = "[checkEnv {}] {}".format(time.strftime("%H:%M:%S"), msg)
+    print(text, flush=True)
+    _dispatch(text)
+
+
+def log_line(raw):
+    """转发子命令的实时输出行"""
+    print(raw, flush=True)
+    _dispatch(raw)
 
 
 def run(cmd, timeout=None):
-    """执行命令并返回(返回码, 合并输出)，统一处理 ~ 路径展开"""
+    """执行命令，实时转发输出，返回(返回码, 合并输出)"""
     cmd = os.path.expanduser(cmd) if isinstance(cmd, str) else cmd
     try:
-        result = subprocess.run(cmd, shell=isinstance(cmd, str), timeout=timeout,
+        proc = subprocess.Popen(cmd, shell=isinstance(cmd, str),
                                 stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-        output = result.stdout.decode("utf-8", errors="replace")
-        return result.returncode, output
-    except subprocess.TimeoutExpired:
-        return 124, "命令超时: {}".format(cmd)
     except OSError as e:
         return 1, str(e)
+    deadline = time.time() + timeout if timeout else None
+    fd = proc.stdout.fileno()
+    output = bytearray()
+    pending = b""
+    while True:
+        ready, _, _ = select.select([fd], [], [], 1.0)
+        if ready:
+            chunk = os.read(fd, 8192)
+            if not chunk:
+                break
+            output.extend(chunk)
+            pending += chunk
+            *lines, pending = pending.replace(b"\r", b"\n").split(b"\n")
+            for line in lines:
+                text = line.decode("utf-8", errors="replace").strip()
+                if text:
+                    log_line(text)
+        if deadline and time.time() > deadline:
+            proc.kill()
+            proc.wait()
+            log("命令超时已终止: {}".format(cmd))
+            return 124, output.decode("utf-8", errors="replace")
+    if pending.strip():
+        text = pending.decode("utf-8", errors="replace").strip()
+        if text:
+            log_line(text)
+    code = proc.wait()
+    return code, output.decode("utf-8", errors="replace")
 
 
 def probe(url, timeout=15):
@@ -148,7 +198,7 @@ def checkConda():
         if "conda version" in output:
             log("### Conda ready ###")
     else:
-        log("未检测到 Miniconda，开始安装(过程中前台可能长时间无输出，请耐心等待)")
+        log("未检测到 Miniconda，开始安装(下载约需几分钟，进度见实时输出)")
         if not install_miniconda():
             return False
 
@@ -175,7 +225,6 @@ def checkConda():
 
 def checkBCL2Fq():
     _, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
-    print(output)
     if "Illumina" in output:
         log("### bcl2fastq ready ###")
         return output

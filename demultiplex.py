@@ -320,14 +320,10 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
 
 
     def installDependence(self):
-        self.label.setText("正在安装，请少安毋躁")
-        QMessageBox.about(self,"提示","注意，点了ok后，界面将卡住不动，不要关闭该程序！")
-        lyric = getLyric()
-        self.label.setText(lyric)
-        import checkEnv
-        checkEnv.check()
+        import env_install_dialog
+        env_install_dialog.run_install(self)
 
-        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
+        bclInfo = subprocess.Popen(['~/miniconda3/bin/conda run -n NGS bcl2fastq -v'], shell=True, stderr=subprocess.PIPE)
         verion = str(bclInfo.stderr.read().decode("utf-8"))
         print(verion)
         if "Illumina" in verion:
