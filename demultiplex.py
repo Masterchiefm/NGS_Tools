@@ -324,23 +324,22 @@ class MyMainWin(QMainWindow, Ui_BCL2Fastq):
         import env_install_dialog
         env_install_dialog.run_install(self, on_finished=self.afterInstall)
 
-    def updateVersion(self, verion, after_install=False):
-        print(verion)
-        if "Illumina" in verion:
+    def updateVersion(self, ok, display, reason, after_install=False):
+        if ok:
             print("### bcl2fastq ready ###")
-            self.label_version.setText(verion)
+            self.label_version.setText(display)
         else:
             self.label_version.setText("未安装")
             if after_install:
-                QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n安装失败，请重试")
+                QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + reason)
             return
         if after_install:
-            QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + verion)
+            QMessageBox.about(self, "done", "安装进程已经结束,下面是安装详情\n" + display)
 
     def afterInstall(self, ok):
         self.label_version.setText("检测中...")
-        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS bcl2fastq -v", capture="stderr")
-        self.versionCheck.ready.connect(lambda verion: self.updateVersion(verion, after_install=True))
+        self.versionCheck = VersionCheckThread("~/miniconda3/bin/conda run -n NGS bcl2fastq -v", "bcl2fastq")
+        self.versionCheck.ready.connect(lambda ok, d, r: self.updateVersion(ok, d, r, after_install=True))
         self.versionCheck.start()
 
 

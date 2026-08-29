@@ -50,9 +50,10 @@ class InstallDialog(QDialog):
 
     def onFinished(self, ok):
         if ok:
-            self.status.setText("安装流程已结束，可自行关闭本窗口。")
+            self.status.setText("安装流程已结束：全部组件就绪，可自行关闭本窗口。")
         else:
-            self.status.setText("安装未完成或出错，详情见上方日志，可关闭窗口后重试。")
+            failed = ", ".join(getattr(checkEnv, "LAST_FAILED", None) or []) or "部分组件"
+            self.status.setText("安装未完成：{} 异常，原因见下方日志汇总，可关闭窗口后重试。".format(failed))
 
 
 def run_install(parent=None, on_finished=None):

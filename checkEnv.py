@@ -1,4 +1,5 @@
 import os
+import re
 import time
 import select
 import subprocess
@@ -25,6 +26,10 @@ PROBE_PATH = "/pkgs/main/linux-64/repodata.json"
 
 # 实时输出回调，GUI 通过 set_progress_callback 注册；未注册时仅打印到控制台
 _progress_callback = None
+
+# 最近一次 check() 的汇总结果，供安装对话框展示
+LAST_SUMMARY = []   # 每个组件一行结论
+LAST_FAILED = []    # 异常组件名列表
 
 
 def set_progress_callback(fn):
@@ -223,52 +228,109 @@ def checkConda():
     return True
 
 
+def detect_bcl2fastq():
+    """返回 (是否可用, 版本描述或失败原因)"""
+    code, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
+    lines = [l.strip() for l in output.splitlines() if l.strip()]
+    ver = next((l for l in lines if l.lower().startswith("bcl2fastq")), None)
+    if code == 0 and ("Illumina" in output or ver):
+        return True, ver or "bcl2fastq"
+    return False, "退出码 {0}, 输出末尾: {1}".format(code, lines[-1] if lines else "(无输出)")
+
+
 def checkBCL2Fq():
-    _, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
-    if "Illumina" in output:
-        log("### bcl2fastq ready ###")
-        return True
-    log("未安装bcl2fastq，开始安装")
+    ok, info = detect_bcl2fastq()
+    if ok:
+        log("### bcl2fastq 就绪: {} ###".format(info))
+        return True, info
+    log("未检测到 bcl2fastq({}), 开始安装".format(info))
     updateCondaMirror()
     runner = MAMBA_BIN if os.path.isfile(MAMBA_BIN) else CONDA_BIN
     code, output = run([runner, "install", "-n", ENV_NAME, "-c", "dranew",
                         "bcl2fastq", "-y"], timeout=3600)
-    _, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "bcl2fastq", "-v"])
-    if "Illumina" in output:
-        log("### bcl2fastq ready ###")
-        return True
-    log("错误: bcl2fastq 安装失败:\n" + output)
-    return False
+    ok, info = detect_bcl2fastq()
+    if ok:
+        log("### bcl2fastq 安装成功: {} ###".format(info))
+        return True, info
+    tail = "\n".join([l for l in output.splitlines() if l.strip()][-15:])
+    log("错误: bcl2fastq 安装失败(退出码 {0})，安装日志末尾:\n{1}".format(code, tail or "(无输出)"))
+    return False, info
+
+
+def detect_crispresso():
+    """返回 (是否可用, 版本描述或失败原因)；--version 输出格式随版本变化，用正则提取"""
+    code, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "CRISPResso", "--version"])
+    m = re.search(r"CRISPResso\D*(\d[\w.\-]*)", output, re.I)
+    if code == 0 and ("[CRISPResso" in output or m):
+        return True, "CRISPResso " + (m.group(1) if m else "未知版本")
+    if code != 0:
+        # 老版本 --version 参数不被识别时，用 --help 兜底判断
+        code, output = run([CONDA_BIN, "run", "-n", ENV_NAME, "CRISPResso", "--help"])
+        if code == 0 and "amplicon" in output.lower():
+            return True, "CRISPResso (版本未知)"
+    lines = [l for l in output.splitlines() if l.strip()]
+    return False, "退出码 {0}, 输出末尾: {1}".format(code, lines[-1] if lines else "(无输出)")
 
 
 def checkCRISPResso2():
-    code, _ = run([CONDA_BIN, "run", "-n", ENV_NAME, "CRISPResso", "--help"])
-    if code == 0:
-        log("### CRISPResso ready ###")
+    ok, info = detect_crispresso()
+    if ok:
+        log("### CRISPResso 就绪: {} ###".format(info))
         log(time.ctime())
-        return True
-    log("未安装CRISPResso，开始安装")
+        return True, info
+    log("未检测到 CRISPResso({}), 开始安装".format(info))
     updateCondaMirror()
     run([CONDA_BIN, "config", "--add", "channels", "bioconda"])
     run([CONDA_BIN, "config", "--add", "channels", "conda-forge"])
     runner = MAMBA_BIN if os.path.isfile(MAMBA_BIN) else CONDA_BIN
     code, output = run([runner, "install", "-n", ENV_NAME, "-c", "bioconda",
                         "CRISPResso2", "-y"], timeout=7200)
-    code, _ = run([CONDA_BIN, "run", "-n", ENV_NAME, "CRISPResso", "--help"])
-    if code == 0:
-        log("### CRISPResso ready ###")
+    ok, info = detect_crispresso()
+    if ok:
+        log("### CRISPResso 安装成功: {} ###".format(info))
         log(time.ctime())
-        return True
-    log("错误: CRISPResso2 安装失败:\n" + output)
+        return True, info
+    tail = "\n".join([l for l in output.splitlines() if l.strip()][-15:])
+    log("错误: CRISPResso2 安装失败(退出码 {0})，安装日志末尾:\n{1}".format(code, tail or "(无输出)"))
     log(time.ctime())
-    return False
+    return False, info
+
+
+def _summarize(components):
+    """输出各组件结论汇总，返回整体是否成功"""
+    global LAST_SUMMARY, LAST_FAILED
+    LAST_SUMMARY, LAST_FAILED = [], []
+    log("=" * 46)
+    log("环境检查结果汇总:")
+    all_ok = True
+    for name, ok, info in components:
+        line = "  [{mark}] {name:<14} {info}".format(
+            mark="√" if ok else "×", name=name, info=info if ok else "失败(" + info + ")")
+        log(line)
+        LAST_SUMMARY.append(line)
+        if not ok:
+            all_ok = False
+            LAST_FAILED.append(name)
+    log("=" * 46)
+    if all_ok:
+        log("全部组件就绪，环境可用!")
+    else:
+        log("异常组件: {}。可关闭窗口后重试；仍失败请把上方日志复制发给维护者。".format(
+            ", ".join(LAST_FAILED)))
+    return all_ok
 
 
 def check():
-    if not checkConda():
-        return False
-    ok = checkBCL2Fq()
-    return checkCRISPResso2() and ok
+    conda_ok = checkConda()
+    if not conda_ok:
+        return _summarize([("conda/NGS环境", False, "详见上方日志")])
+    bcl_ok, bcl_info = checkBCL2Fq()
+    cr_ok, cr_info = checkCRISPResso2()
+    return _summarize([
+        ("conda/NGS环境", True, "就绪"),
+        ("bcl2fastq", bcl_ok, bcl_info),
+        ("CRISPResso2", cr_ok, cr_info),
+    ])
 
 
 if __name__ == "__main__":
