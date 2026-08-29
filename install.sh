@@ -34,7 +34,7 @@ command -v curl >/dev/null 2>&1 || fail "缺少 curl, 请先安装 (sudo apt ins
 command -v tar  >/dev/null 2>&1 || fail "缺少 tar"
 
 http() { curl -fsSL --connect-timeout 10 --max-time 60 "$1"; }
-download() { curl -sS -L --connect-timeout 15 --max-time 1800 --retry 3 -o "$2" "$1"; }
+download() { curl -# -S -L --connect-timeout 15 --max-time 1800 --retry 3 -o "$2" "$1"; }
 
 # ------------------------------------------------------------
 # 1. 获取最新版本信息, 优先 gitee
@@ -138,6 +138,19 @@ chmod 644 "$DESKTOP_FILE"
 command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database "$DESKTOP_DIR" 2>/dev/null
 command -v gio >/dev/null 2>&1 && gio set "$DESKTOP_FILE" metadata::trusted true 2>/dev/null
 
+# ------------------------------------------------------------
+# 5. 加入 PATH (幂等, 重复安装不会重复写入)
+# ------------------------------------------------------------
+add_path_line() {
+    local file="$1"
+    [ -f "$file" ] || touch "$file"
+    grep -q '\.ngs_tools' "$file" 2>/dev/null && return 0
+    printf '\n# Added by NGS_Tools installer\nexport PATH="$HOME/.ngs_tools:$PATH"\n' >> "$file"
+}
+add_path_line "$HOME/.bashrc"
+[ -f "$HOME/.profile" ] && add_path_line "$HOME/.profile"
+[ -f "$HOME/.zshrc" ] && add_path_line "$HOME/.zshrc"
+
 if [ -n "$old_version" ]; then
     if [ "$old_version" = "$tag" ]; then
         log "已重新安装当前版本 $tag (覆盖安装)"
@@ -147,8 +160,9 @@ if [ -n "$old_version" ]; then
 else
     log "全新安装完成"
 fi
+log "安装完成!"
 log "  程序目录 : $INSTALL_DIR"
 log "  版本     : $tag"
 log "  菜单入口 : 应用列表中的 \"NGS_Tools\" ($DESKTOP_FILE)"
-log "  也可直接运行: $INSTALL_DIR/NGS_Tools"
+log "  终端启动 : 新开一个终端输入 NGS_Tools (或立即执行: source ~/.bashrc && NGS_Tools)"
 log "首次使用请在程序内点击\"安装分析环境\"以部署 conda 分析环境"
