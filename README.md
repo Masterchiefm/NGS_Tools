@@ -59,6 +59,18 @@ CPU建议8核心以上
 ```
 
 ## 运行
+### 一键安装/更新（推荐）
+
+安装脚本会自动下载最新版安装包（优先 gitee，失败自动切换 GitHub），安装到 `~/.ngs_tools`，赋予运行权限，并在应用菜单创建入口。已安装时再次运行即为覆盖升级，不影响已安装的分析环境。
+
+```
+bash <(curl -sL https://gitee.com/MasterChiefm/NGS_Tools/raw/master/install.sh)
+```
+
+也可下载本仓库后直接执行 `bash install.sh`。
+
+### 手动安装
+
 1. 无需安装，下载即可使用。
 
 下载链接：
