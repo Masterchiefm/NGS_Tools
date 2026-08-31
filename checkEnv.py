@@ -2,6 +2,7 @@ import os
 import re
 import time
 import select
+import shutil
 import subprocess
 
 CONDA_HOME = os.path.join(os.environ["HOME"], "miniconda3")
@@ -11,18 +12,28 @@ ENV_NAME = "NGS"
 PYTHON_VERSION = "3.9"
 
 # anaconda 镜像按优先级排列，探测失败自动切换到下一个
-# 注意：阿里云目前尚未同步 anaconda 仓库（路径 404），探测会自动跳过；
-#      中科大源会重定向至南京大学镜像，两者均保留作为备用
+# 2026-08 实测(本机 WSL)：下列 7 个源的安装包/pkgs-main/conda-forge/bioconda 四类资源
+# 全部直接返回 200/206、无任何跳转，按实测下载速度与同步新鲜度排序。
+# 已剔除：上海交大(301→自家s3后端)、北外/西安交大(302→清华/官方)、中科大(安装包403、
+# pkgs跳转南大)、兰州大学(带反爬挑战层)、华为云(镜像路径返回门户HTML，假阳性)、
+# 阿里云/腾讯云/网易/华科等(无 anaconda 仓库，404)
 ANACONDA_MIRRORS = [
-    ("北京大学", "https://mirrors.pku.edu.cn/anaconda"),
-    ("上海交通大学", "https://mirror.sjtu.edu.cn/anaconda"),
-    ("中国科学技术大学", "https://mirrors.ustc.edu.cn/anaconda"),
     ("南京大学", "https://mirrors.nju.edu.cn/anaconda"),
-    ("阿里云", "https://mirrors.aliyun.com/anaconda"),
+    ("北京大学", "https://mirrors.pku.edu.cn/anaconda"),
+    ("清华大学", "https://mirrors.tuna.tsinghua.edu.cn/anaconda"),
+    ("山东大学", "https://mirrors.sdu.edu.cn/anaconda"),
+    ("中山大学", "https://mirror.sysu.edu.cn/anaconda"),
+    ("哈尔滨工业大学", "https://mirrors.hit.edu.cn/anaconda"),
+    ("浙江大学", "https://mirrors.zju.edu.cn/anaconda"),
 ]
 # 官方源，仅在所有镜像都不可用时作为最后手段
 OFFICIAL_MINICONDA_URL = "https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh"
-PROBE_PATH = "/pkgs/main/linux-64/repodata.json"
+# 选源时必须全部可用的通道：defaults 主仓库 + conda-forge(mamba) + bioconda(CRISPResso2/bcl2fastq)
+PROBE_PATHS = (
+    "/pkgs/main/linux-64/repodata.json",
+    "/cloud/conda-forge/linux-64/repodata.json",
+    "/cloud/bioconda/linux-64/repodata.json",
+)
 
 # 实时输出回调，GUI 通过 set_progress_callback 注册；未注册时仅打印到控制台
 _progress_callback = None
@@ -58,8 +69,8 @@ def log_line(raw):
     _dispatch(raw)
 
 
-def run(cmd, timeout=None):
-    """执行命令，实时转发输出，返回(返回码, 合并输出)"""
+def run(cmd, timeout=None, quiet=False):
+    """执行命令，实时转发输出，返回(返回码, 合并输出)；quiet 时不转发(用于探测等内部调用)"""
     cmd = os.path.expanduser(cmd) if isinstance(cmd, str) else cmd
     try:
         proc = subprocess.Popen(cmd, shell=isinstance(cmd, str),
@@ -79,16 +90,17 @@ def run(cmd, timeout=None):
             output.extend(chunk)
             pending += chunk
             *lines, pending = pending.replace(b"\r", b"\n").split(b"\n")
-            for line in lines:
-                text = line.decode("utf-8", errors="replace").strip()
-                if text:
-                    log_line(text)
+            if not quiet:
+                for line in lines:
+                    text = line.decode("utf-8", errors="replace").strip()
+                    if text:
+                        log_line(text)
         if deadline and time.time() > deadline:
             proc.kill()
             proc.wait()
             log("命令超时已终止: {}".format(cmd))
             return 124, output.decode("utf-8", errors="replace")
-    if pending.strip():
+    if pending.strip() and not quiet:
         text = pending.decode("utf-8", errors="replace").strip()
         if text:
             log_line(text)
@@ -97,38 +109,68 @@ def run(cmd, timeout=None):
 
 
 def probe(url, timeout=15):
-    """用小范围请求探测镜像是否可用，-f 使 curl 在 HTTP 错误时返回非零"""
-    code, _ = run(["curl", "-fsSL", "--connect-timeout", "5",
-                   "--max-time", str(timeout), "-r", "0-99",
-                   "-o", "/dev/null", url])
-    return code == 0
+    """探测 repodata 是否真实可达：要求 2xx 且 content-type 为 json。
+    仅看状态码会误判——华为云等站点的镜像路径会返回 200 的门户 HTML 页；
+    优先 HEAD(无响应体，不受山东大学等忽略 Range 头的站点影响)，失败再回退范围 GET"""
+    if shutil.which("curl"):
+        # -f 使 curl 在 HTTP 错误时返回非零，-L 跟随镜像间的 301/302 跳转
+        for extra in (["-I"], ["-r", "0-99"]):
+            code, ctype = run(["curl", "-fsSL", "-o", "/dev/null"] + extra +
+                              ["--connect-timeout", "5", "--max-time", str(timeout),
+                               "-w", "%{content_type}", url], quiet=True)
+            if code == 0 and "json" in (ctype or "").lower():
+                return True
+        return False
+    # --spider 只请求响应头，-S 使 HTTP 错误码导致非零退出；从响应头里校验 content-type
+    code, out = run(["wget", "--spider", "-S", "-T", str(timeout), "-t", "1", url],
+                    timeout=timeout + 10, quiet=True)
+    return code == 0 and "json" in out.lower()
 
 
 def pick_mirror():
     """按优先级探测镜像，返回第一个可用的 (名称, 地址)，全部失败返回 (None, None)"""
     for name, base in ANACONDA_MIRRORS:
         log("探测镜像: {} ({})".format(name, base))
-        if probe(base + PROBE_PATH):
+        if all(probe(base + path) for path in PROBE_PATHS):
             log("镜像可用: {}".format(name))
             return name, base
         log("镜像不可用，尝试下一个")
     return None, None
 
 
-def download_miniconda(dest):
-    """依次从各镜像下载 Miniconda 安装脚本，全部失败时回退官方源"""
+def fetch(url, dest, timeout=1800):
+    """下载文件，优先 wget，无 wget 时用 curl，返回 (返回码, 输出)。
+    不能加 -q/-s 之类的静默参数：下载失败的原因必须透传到日志，否则无从排查"""
+    if shutil.which("wget"):
+        return run(["wget", "-c", "--timeout=30", "--tries=3", "-nv",
+                    "-O", dest, url], timeout=timeout)
+    return run(["curl", "-fL", "-C", "-", "--connect-timeout", "15",
+                "--retry", "3", "-o", dest, url], timeout=timeout)
+
+
+def download_miniconda(dest, rounds=2):
+    """依次从各镜像下载 Miniconda 安装脚本，全部失败时回退官方源；
+    一整轮全部失败时再整体重试，以扛过 DNS 短暂失效等瞬时网络故障"""
     candidates = [(name, base + "/miniconda/Miniconda3-latest-Linux-x86_64.sh")
                   for name, base in ANACONDA_MIRRORS]
     candidates.append(("官方源", OFFICIAL_MINICONDA_URL))
-    for name, url in candidates:
-        log("从 {} 下载 Miniconda...".format(name))
-        os.makedirs(os.path.dirname(dest), exist_ok=True)
-        code, _ = run(["wget", "-c", "--timeout=30", "--tries=3", "-q",
-                       "-O", dest, url], timeout=1800)
-        if code == 0 and os.path.isfile(dest) and os.path.getsize(dest) > 10 * 1024 * 1024:
-            log("下载完成: {} ({:.1f} MB)".format(name, os.path.getsize(dest) / 1048576))
-            return True
-        log("从 {} 下载失败".format(name))
+    for attempt in range(1, rounds + 1):
+        if attempt > 1:
+            log("第 {} 轮下载全部失败，重试所有源...".format(attempt - 1))
+        for name, url in candidates:
+            log("从 {} 下载 Miniconda...".format(name))
+            os.makedirs(os.path.dirname(dest), exist_ok=True)
+            if os.path.exists(dest):
+                os.remove(dest)  # 各镜像 latest 版本可能不一致，跨源续传会拼出坏文件
+            code, output = fetch(url, dest)
+            if code == 0 and os.path.isfile(dest) and os.path.getsize(dest) > 10 * 1024 * 1024:
+                log("下载完成: {} ({:.1f} MB)".format(name, os.path.getsize(dest) / 1048576))
+                return True
+            reason = next((l for l in reversed(output.splitlines()) if l.strip()), "")
+            log("从 {} 下载失败{}".format(name, ": " + reason if reason else ""))
+            if os.path.isfile(dest) and os.path.getsize(dest) <= 10 * 1024 * 1024:
+                os.remove(dest)  # 清掉错误页等残片
+    log("错误: Miniconda 所有下载源均失败，请检查网络(含 WSL 的 DNS/代理)后重试")
     return False
 
 
@@ -163,12 +205,11 @@ def install_miniconda():
     """下载并静默安装 Miniconda"""
     installer = os.path.join(CONDA_HOME, "miniconda.sh")
     if not download_miniconda(installer):
-        log("错误: Miniconda 所有下载源均失败，请检查网络后重试")
         return False
     log("开始安装 Miniconda...")
     code, output = run(["bash", installer, "-b", "-u", "-p", CONDA_HOME], timeout=1800)
     os.remove(installer)
-    if code != 0:
+    if code != 0 or not os.path.isfile(CONDA_BIN):
         log("错误: Miniconda 安装失败:\n" + output)
         return False
     run([CONDA_BIN, "init", "bash"], timeout=120)
@@ -190,8 +231,10 @@ def create_env():
 
 
 def install_mamba():
-    code, output = run([CONDA_BIN, "install", "conda-forge::mamba", "-y"], timeout=1800)
-    if code != 0:
+    """把 mamba 装进 base 环境，失败不影响后续流程(会改用 conda)"""
+    code, output = run([CONDA_BIN, "install", "-n", "base",
+                        "conda-forge::mamba", "-y"], timeout=1800)
+    if code != 0 or not os.path.isfile(MAMBA_BIN):
         log("警告: mamba 安装失败(不影响后续流程，将改用 conda):\n" + output)
         return False
     return True
@@ -203,7 +246,7 @@ def checkConda():
         if "conda version" in output:
             log("### Conda ready ###")
     else:
-        log("未检测到 Miniconda，开始安装(下载约需几分钟，进度见实时输出)")
+        log("未检测到 Miniconda，开始安装(安装包约190MB，视网速可能需几分钟)")
         if not install_miniconda():
             return False
 
