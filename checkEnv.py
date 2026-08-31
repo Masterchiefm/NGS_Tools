@@ -113,16 +113,17 @@ def probe(url, timeout=15):
     仅看状态码会误判——华为云等站点的镜像路径会返回 200 的门户 HTML 页；
     优先 HEAD(无响应体，不受山东大学等忽略 Range 头的站点影响)，失败再回退范围 GET"""
     if shutil.which("curl"):
-        # -f 使 curl 在 HTTP 错误时返回非零，-L 跟随镜像间的 301/302 跳转
+        # -f 使 curl 在 HTTP 错误时返回非零，-L 跟随镜像间的 301/302 跳转，-k 跳过证书校验
         for extra in (["-I"], ["-r", "0-99"]):
-            code, ctype = run(["curl", "-fsSL", "-o", "/dev/null"] + extra +
+            code, ctype = run(["curl", "-fsSLk", "-o", "/dev/null"] + extra +
                               ["--connect-timeout", "5", "--max-time", str(timeout),
                                "-w", "%{content_type}", url], quiet=True)
             if code == 0 and "json" in (ctype or "").lower():
                 return True
         return False
     # --spider 只请求响应头，-S 使 HTTP 错误码导致非零退出；从响应头里校验 content-type
-    code, out = run(["wget", "--spider", "-S", "-T", str(timeout), "-t", "1", url],
+    code, out = run(["wget", "--spider", "-S", "--no-check-certificate",
+                     "-T", str(timeout), "-t", "1", url],
                     timeout=timeout + 10, quiet=True)
     return code == 0 and "json" in out.lower()
 
@@ -140,11 +141,12 @@ def pick_mirror():
 
 def fetch(url, dest, timeout=1800):
     """下载文件，优先 wget，无 wget 时用 curl，返回 (返回码, 输出)。
+    不校验证书：部分启动环境(如 WSLg)下系统 wget 会加载到异常 SSL 库，所有证书都验证失败；
     不能加 -q/-s 之类的静默参数：下载失败的原因必须透传到日志，否则无从排查"""
     if shutil.which("wget"):
         return run(["wget", "-c", "--timeout=30", "--tries=3", "-nv",
-                    "-O", dest, url], timeout=timeout)
-    return run(["curl", "-fL", "-C", "-", "--connect-timeout", "15",
+                    "--no-check-certificate", "-O", dest, url], timeout=timeout)
+    return run(["curl", "-fkL", "-C", "-", "--connect-timeout", "15",
                 "--retry", "3", "-o", dest, url], timeout=timeout)
 
 
