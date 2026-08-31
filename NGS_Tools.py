@@ -129,7 +129,11 @@ if __name__ == "__main__":
     if hasattr(qdarktheme, "enable_hi_dpi"):  # 0.2+ 才有；PyPI 现仅存 0.1.x，缩放由上行属性兜底
         qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
-    qdarktheme.setup_theme("dark")
+    if hasattr(qdarktheme, "setup_theme"):
+        qdarktheme.setup_theme("dark")
+    else:  # pyqtdarktheme 0.1.x 旧 API
+        app.setStyleSheet(qdarktheme.load_stylesheet("dark"))
+        app.setPalette(qdarktheme.load_palette("dark"))
     # app.installTranslator(trans)
     win = MyMainWin()
     win.show()
