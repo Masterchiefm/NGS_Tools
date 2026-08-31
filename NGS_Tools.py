@@ -126,7 +126,8 @@ if __name__ == "__main__":
 
 
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
-    qdarktheme.enable_hi_dpi()
+    if hasattr(qdarktheme, "enable_hi_dpi"):  # 0.2+ 才有；PyPI 现仅存 0.1.x，缩放由上行属性兜底
+        qdarktheme.enable_hi_dpi()
     app = QApplication(sys.argv)
     qdarktheme.setup_theme("dark")
     # app.installTranslator(trans)
